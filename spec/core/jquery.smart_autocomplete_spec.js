@@ -93,7 +93,7 @@ describe('Smart AutoComplete', function () {
 
     });
 
-    describe('key in event', function(){
+    describe('when user enters a value to the field', function(){
 
       it("performs no action if disabled", function(){
         $("#autoCompleteField").smartAutoComplete({disabled: true});
@@ -107,8 +107,30 @@ describe('Smart AutoComplete', function () {
         expect(output_buffer).toEqual("received t & test");
       });
 
+    });
+
+    describe('when filtered results are ready', function(){
+
+      var result_formatter_called = false;
+      var custom_filter_function = function(){ $(this).trigger('filterReady', [["a", "b", "c"]]) };
+      var result_formatter_function = function(r){ result_formatter_called = true; return r };
+
+      it("format the results using the result formatter function", function(){
+        $("#autoCompleteField").smartAutoComplete({filter: custom_filter_function, resultFormatter: result_formatter_function });
+        $("#autoCompleteField").trigger("keyIn", "t");
+        expect(result_formatter_called).toBeTruthy();
+      });
+
+      it("should append the results to given appendTo element", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'></div>");
+        $("#autoCompleteField").smartAutoComplete({filter: custom_filter_function, resultFormatter: result_formatter_function, appendTo: "#autoCompleteAppendToBlock" });
+        $("#autoCompleteField").trigger("keyIn", "t");
+
+        expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
+
+      });
+
     
     });
 
 });
-

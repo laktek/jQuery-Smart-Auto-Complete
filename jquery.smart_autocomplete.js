@@ -30,8 +30,9 @@
 
   events:
   keyIn: fires when user types into the field
-  resultsReady: fires when filtered results are appended to the view 
+  filterReady: fires when the filter function returns
   noMatch: fires when filter returns an empty array to append to the view
+  resultsReady: fires when filtered results are appended to the view 
   itemHover: fires when user hovers over an item in the result list
   itemSelect: fires when user selects an item from the result list
  })
@@ -51,14 +52,35 @@
 
       //bind the events
       $(this).bind('keyIn.smart_autocomplete', function(ev, query){
-        var options = $(this).data("smart-autocomplete");
+        var smart_autocomplete_field = this;
+        var options = $(smart_autocomplete_field).data("smart-autocomplete");
         var source = options.source || null;
 
         if(options.disabled)
           return false;
 
         //call the filter function
-        options.filter.call(this, query, options.source)
+        options.filter.apply(this, [query, options.source]);
+
+      });
+
+      $(this).bind('filterReady.smart_autocomplete', function(ev, results){
+        var smart_autocomplete_field = this;
+        var options = $(smart_autocomplete_field).data("smart-autocomplete");
+        var result_formatter = options.resultFormatter;
+        var appendTo = options.appendTo;
+
+        if(options.disabled)
+          return false;
+
+        //call the results formatter function
+        var formatted_results = $.map(results, function(result){
+          return result_formatter.apply(smart_autocomplete_field, [result]);
+        });
+
+        //check whether an appendTo element is defined
+        if(appendTo)
+          $(appendTo).append(formatted_results.join(""));
 
       });
 
