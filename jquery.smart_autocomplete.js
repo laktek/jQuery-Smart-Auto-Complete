@@ -10,10 +10,8 @@
  $(target).smartAutoComplete({options})
   options:
   minCharLimit: (integer) minimum characters user have to type before invoking the autocomplete (default: 2)
-  maxResults: (integer) maximum number of results to return (default: -1 (unlimited)) - works only with the default filter
+  maxResults: (integer) maximum number of results to return (default: null (unlimited)) - works only with the default filter
   delay: (integer) delay before autocomplete starts (default: 300ms)
-  typeAhead: (boolean) fill the field with the best matching result, as in google instant search (default: false)
-             and fires the select event.
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
   forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default false)
   source:  (array/function) you can supply an array or callback function that would return an array for the source
@@ -35,6 +33,9 @@
   hideResults: fires when results are hidden
   noMatch: fires when filter returns an empty array to append to the view
   itemSelect: fires when user selects an item from the result list
+
+  Depends On:
+  jquery.outsideClick.js
  })
 */
 
@@ -58,7 +59,7 @@
 
     var default_options = {
                             minCharLimit: 2, 
-                            maxResults: -1,
+                            maxResults: null,
                             delay: 300,
                             typeAhead: false,
                             disabled: false,
@@ -67,13 +68,17 @@
                             resultFormatter: function(r){ return ("<li>" + r + "</li>"); },
 
                             filter: function(term, source){    
-                              var context = this.context;
-                              var max_results = this.maxResults;
+                              var context = this;
+                              var options = $(context).data('smart-autocomplete');
+                              var truncated_results = function(results){
+                                return (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
+                              }
+
                               //when source is an array
                               if($.type(source) === "array") {
                                 // directly map
                                 var results = default_filter_matcher(term, source, context);
-                                $(context).trigger('filterReady', [results.splice(0, max_results)]);
+                                $(context).trigger('filterReady', [truncated_results(results)]);
                               }
                               //when source is a string
                               else if($.type(source) === "string"){
@@ -85,9 +90,10 @@
                                   data: {"term": term},
                                   dataType: "json",
                                   success: function( data, status, xhr ) {
-                                    $(context).trigger('filterReady', [data.splice(0, max_results)]);
+                                    $(context).trigger('filterReady', [truncated_results(results)]);
                                   },
                                   error: function( xhr ) {
+                                     //handle errors
                                   }
                                 });
                                 
@@ -107,6 +113,16 @@
                                       left: function(){ return context.position().left; }, 
                                       width: function(){ return context.width(); } 
                                 }).show();
+
+                              // hide the results container when click outside of it
+                              $(document).bind('mousedown.smart_autocomplete', 
+                                               function(event){ 
+                                                  var elemIsParent = $.contains(results_container[0], event.target);
+                                                  if(event.target == results_container[0] || event.target == context[0] || elemIsParent) return
+                                 
+                                                  $(context).trigger('hideResults');
+                                                  $(document).unbind("mousedown.smart_autocomplete");
+                              });
                             },
 
                             hideResults: function(){    
@@ -127,12 +143,20 @@
                             },
 
                             itemSelect: function(selected_item){    
+                              //return if no result item is selected
+                              if($(selected_item).hasClass('_smart_autocomplete_no_result'))
+                                return;
+
                               //get the context
                               var context = this.context;
+
                               //get the text from selected item
                               var selected_value = $(selected_item).text();
                               //set it as the value of the autocomplete field
                               $(context).val(selected_value); 
+
+                              //hide results container
+                              $(context).trigger('hideResults');
                             },
 
                             clearResults: function(){
@@ -149,6 +173,7 @@
     return this.each(function(i) { 
       //set the options
       var options = $.extend(default_options, $(this).data("smart-autocomplete"), passed_options);
+      //set the context
       options['context'] = this;
 
       //if a result container is not defined
@@ -168,11 +193,20 @@
       // save the values in data object
       $(this).data("smart-autocomplete", options);
 
-      //bind the events
+      // bind user events
       $(this).keyup(function(ev){
-        $(this).trigger('keyIn', [$(this).val()]); 
+        //check minimum number of characters are typed
+        if($(this).val().length > options.minCharLimit)
+          $(this).trigger('keyIn', [$(this).val()]); 
       });
 
+      if(options.forceSelect){
+        $(this).focus(function(){
+          $(this).select(); 
+        });
+      }
+
+      //bind plugin specific events
       $(this).bind('keyIn.smart_autocomplete', function(ev, query){
         var smart_autocomplete_field = this;
         var options = $(smart_autocomplete_field).data("smart-autocomplete");
@@ -203,14 +237,13 @@
           return false
         }
 
+        //save the raw results
+        options.raw_results = results;
+        $(smart_autocomplete_field).data("smart-autocomplete", options);
+
         //call the results formatter function
         var formatted_results = $.map(results, function(result){
-          var formatted_element = result_formatter.apply(smart_autocomplete_field, [result]);
-
-          //add class to identify as autocomplete result item
-          $(formatted_element).addClass('smart_autocomplete_result');
-
-          return formatted_element
+          return result_formatter.apply(smart_autocomplete_field, [result]);
         });
 
         var formatted_results_html = formatted_results.join("");
@@ -218,11 +251,14 @@
         //clear all previous results 
         $(smart_autocomplete_field).smartAutoComplete().clearResults();
 
+        //undelegate any previous delegations
+        $(result_container).undelegate('*', 'click.smart_autocomplete');
+
         //append the results to the container
         $(result_container).append(formatted_results_html);
 
         //bind an event to trigger item selection
-        $(result_container).delegate('smart_autocomplete_result', 'click', function(){
+        $(result_container).delegate('*', 'click.smart_autocomplete', function(){
           $(smart_autocomplete_field).trigger('itemSelect', this);
         });
 
