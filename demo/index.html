@@ -8,15 +8,21 @@
   <link media="screen" type="text/css" href="stylesheets/smooth_theme.css" rel="stylesheet">
 
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-  <script type="text/javascript" src="../jquery.outside_click.js"></script>
   <script type="text/javascript" src="../jquery.smart_autocomplete.js"></script>
 
   <script type="text/javascript">
     $(function(){
-        $("#basic_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], forceSelect: true})
+        $("#basic_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], forceSelect: true, minCharLimit: 0, delay: 200});
         $("#textarea_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango']})
     });
   </script>
+
+  <style>
+    ul li {list-style: none; cursor: pointer;}
+    li.highlight {background-color: #c0c0c0;}
+    ul { margin: 10px 0; padding: 5px; background-color: #aeaeae; }
+
+  </style>
 
 </head>
 
@@ -25,8 +31,10 @@
       <div id="header"><h1>Smart AutoComplete Samples</h1></div>
       <div id="wrapper">
         <div id="content">
-          <input type="text" id="basic_autocomplete_field"/>
-          <textarea id="textarea_autocomplete_field"></textarea>
+          <form>
+            <input type="text" autocomplete="off" id="basic_autocomplete_field"/>
+            <textarea  autocomplete="off" id="textarea_autocomplete_field"></textarea>
+          </form>
         </div>
       </div>
     </div>

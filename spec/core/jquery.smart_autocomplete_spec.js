@@ -21,12 +21,8 @@ describe('Smart AutoComplete', function () {
         expect(smart_autocomplete_options.maxResults).toEqual(null);
       });
 
-      it('delay should be 300ms', function () {
-        expect(smart_autocomplete_options.delay).toEqual(300);
-      });
-
-      it('type ahead should be false', function () {
-        expect(smart_autocomplete_options.typeAhead).toEqual(false);
+      it('delay should be 0ms', function () {
+        expect(smart_autocomplete_options.delay).toEqual(0);
       });
 
       it('disabled should be false', function () {
@@ -70,13 +66,6 @@ describe('Smart AutoComplete', function () {
        expect(smart_autocomplete_options.delay).toEqual(10);
       });
 
-      it('type ahead set to true', function () {
-       $("#autoCompleteField").smartAutoComplete({typeAhead: true});
-       smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
-
-       expect(smart_autocomplete_options.typeAhead).toEqual(true);
-      });
-
       it('disabled set to true', function () {
        $("#autoCompleteField").smartAutoComplete({disabled: true});
        smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
@@ -96,15 +85,36 @@ describe('Smart AutoComplete', function () {
     describe('keyIn event', function(){
 
       it("performs no action if disabled", function(){
-        $("#autoCompleteField").smartAutoComplete({disabled: true});
-        //expect($("#autoCompleteField").trigger("keyIn")).toBeFalsy();
+        var mock_autocomplete_obj = {filter: function(){}, source: 'test', disabled: true};
+        spyOn(mock_autocomplete_obj, 'filter');
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger("keyIn", "t");
+
+        expect(mock_autocomplete_obj.filter).not.toHaveBeenCalledWith('t', 'test');
+      });
+
+      it("waits for the miliseconds set as the delay before running the filter", function(){
+        var output_buffer;
+        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; }, source: "test", delay: 10});
+        $("#autoCompleteField").trigger("keyIn", "t");
+
+        waits(10); //this is deprecated
+        runs(function(){
+          expect(output_buffer).toEqual("received t & test");
+        });
       });
       
       it("if custom filter function is defined, call it with query and source", function(){
         var output_buffer;
         $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; }, source: "test"});
         $("#autoCompleteField").trigger("keyIn", "t");
-        expect(output_buffer).toEqual("received t & test");
+
+        waits(0); //this is deprecated
+        runs(function(){
+          expect(output_buffer).toEqual("received t & test");
+        });
       });
   
       it("if custom filter function is not defined, call default filter with query and source", function(){
@@ -115,8 +125,10 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
         $("#autoCompleteField").trigger("keyIn", "t");
 
-        expect(mock_autocomplete_obj.filter).toHaveBeenCalledWith('t', 'test');
-
+        waits(0); //this is deprecated
+        runs(function(){
+          expect(mock_autocomplete_obj.filter).toHaveBeenCalledWith('t', 'test');
+        });
       });
 
     });
@@ -130,7 +142,7 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").smartAutoComplete({});
         $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
 
-        expect($("#autoCompleteField").data("smart-autocomplete")).toEqual({});
+        expect($("#autoCompleteField").data("smart-autocomplete").rawResults).toEqual(["a", "b", "c"]);
  
       });
 
@@ -341,6 +353,86 @@ describe('Smart AutoComplete', function () {
 
     });
 
+    describe('itemOver event', function(){
+
+      var selected_item = "mock item";
+
+      it("should run the default handler if no custom handlers defined", function(){
+        var mock_autocomplete_obj = {itemOver: function(){}};
+        spyOn(mock_autocomplete_obj, 'itemOver');
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger('itemOver', selected_item);
+
+        expect(mock_autocomplete_obj.itemOver).toHaveBeenCalledWith(selected_item);
+      }); 
+
+      it("should not run the default handler if any custom handlers defined", function(){
+        var mock_autocomplete_obj = {itemOver: function(){}};
+        spyOn(mock_autocomplete_obj, 'itemOver');
+
+        $("#autoCompleteField").bind('itemOver', function(){});
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger('itemOver', selected_item);
+
+        expect(mock_autocomplete_obj.itemOver).not.toHaveBeenCalled();
+      }); 
+
+      it("should run all custom handlers defined", function(){
+        var event_output = "";
+        $("#autoCompleteField").bind('itemOver', function(){ event_output += "event1 "});
+        $("#autoCompleteField").bind('itemOver', function(){ event_output += "event2"});
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").trigger('itemOver');
+
+        expect(event_output).toEqual("event1 event2");
+      });
+
+    });
+
+    describe('itemOut event', function(){
+
+      var selected_item = "mock item";
+
+      it("should run the default handler if no custom handlers defined", function(){
+        var mock_autocomplete_obj = {itemOut: function(){}};
+        spyOn(mock_autocomplete_obj, 'itemOut');
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger('itemOut', selected_item);
+
+        expect(mock_autocomplete_obj.itemOut).toHaveBeenCalledWith(selected_item);
+      }); 
+
+      it("should not run the default handler if any custom handlers defined", function(){
+        var mock_autocomplete_obj = {itemOut: function(){}};
+        spyOn(mock_autocomplete_obj, 'itemOut');
+
+        $("#autoCompleteField").bind('itemOut', function(){});
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger('itemOut', selected_item);
+
+        expect(mock_autocomplete_obj.itemOut).not.toHaveBeenCalled();
+      }); 
+
+      it("should run all custom handlers defined", function(){
+        var event_output = "";
+        $("#autoCompleteField").bind('itemOut', function(){ event_output += "event1 "});
+        $("#autoCompleteField").bind('itemOut', function(){ event_output += "event2"});
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").trigger('itemOut');
+
+        expect(event_output).toEqual("event1 event2");
+      });
+
+    });
+
     describe('default filter', function(){
 
       beforeEach(function(){
@@ -428,10 +520,10 @@ describe('Smart AutoComplete', function () {
       });
 
       it("fill in the field with best matching value if force select is enabled and field is not empty", function(){
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true });
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'] });
         $("#autoCompleteField").smartAutoComplete().hideResults();
 
-        expect($("#resultsContainer")).not.toBeVisible();
+        expect($("#autoCompleteField")).toHaveValue('Apple');
 
 
       })
@@ -465,6 +557,30 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").smartAutoComplete().itemSelect($("#selectedField"));
         expect(mock_autocomplete_obj.hideResults).toHaveBeenCalled();
  
+      });
+
+    });
+
+    describe('default item over', function(){
+
+      it('should add highlight class to the element', function(){
+        setFixtures("<input id='autoCompleteField'/><div id='highlightedField'>I was highlighted!</div>");
+        $("#autoCompleteField").smartAutoComplete({});
+
+        $("#autoCompleteField").smartAutoComplete().itemOver($("#highlightedField"));
+        expect($("#highlightedField")).toHaveClass('highlight');
+      });
+
+    })
+
+    describe('default item out', function(){
+
+      it('should remove highlight class from the element', function(){
+        setFixtures("<input id='autoCompleteField'/><div class='highlight' id='highlightedField'>I was highlighted!</div>");
+        $("#autoCompleteField").smartAutoComplete({});
+
+        $("#autoCompleteField").smartAutoComplete().itemOut($("#highlightedField"));
+        expect($("#highlightedField")).not.toHaveClass('highlight');
       });
 
     })

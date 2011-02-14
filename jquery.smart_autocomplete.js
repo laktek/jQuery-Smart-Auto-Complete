@@ -33,9 +33,9 @@
   hideResults: fires when results are hidden
   noMatch: fires when filter returns an empty array to append to the view
   itemSelect: fires when user selects an item from the result list
+  itemOver: fires when user highlights an item with mouse or arrow keys
+  itemOut: fires when user moves out from an highlighted item
 
-  Depends On:
-  jquery.outsideClick.js
  })
 */
 
@@ -60,8 +60,7 @@
     var default_options = {
                             minCharLimit: 2, 
                             maxResults: null,
-                            delay: 300,
-                            typeAhead: false,
+                            delay: 0,
                             disabled: false,
                             forceSelect: false,
 
@@ -126,6 +125,12 @@
                             },
 
                             hideResults: function(){    
+                              //if force select is selected, get the best matching value
+                              if(this.forceSelect){
+                                if(this.rawResults.length > 0)
+                                  $(this.context).val(this.rawResults[0]);
+                              }
+
                               //show the results container if it's hidden (or append it after the field if it was created on the fly)
                               if($(this.resultsContainer))
                                 $(this.resultsContainer).hide();
@@ -155,18 +160,26 @@
                               //set it as the value of the autocomplete field
                               $(context).val(selected_value); 
 
+                              //clear raw results hash
+                              this.rawResults = [];
+
                               //hide results container
                               $(context).trigger('hideResults');
                             },
 
+                            itemOver: function(selected_item){    
+                              $(selected_item).addClass("highlight");
+                            },
+
+                            itemOut: function(selected_item){    
+                              $(selected_item).removeClass("highlight");
+                            },
+                             
                             clearResults: function(){
                               $(this.resultsContainer).html("");
                             }
 
-
-
     };
-
     
     var passed_options = arguments[0];
 
@@ -195,9 +208,74 @@
 
       // bind user events
       $(this).keyup(function(ev){
-        //check minimum number of characters are typed
-        if($(this).val().length > options.minCharLimit)
+        //get the options
+        var options = $(this).data("smart-autocomplete");
+
+        //up arrow
+        if(ev.keyCode == '38'){
+          var current_selection = options.current_selection || 0;
+          var result_suggestions = $(options.resultsContainer).children();
+
+          if(current_selection >= 0)
+            $(result_suggestions[current_selection]).removeClass("highlight");
+
+          if(--current_selection <= 0)
+            current_selection = 0;
+
+          options['current_selection'] = current_selection;
+
+          $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
+          
+          //save the options
+          $(this).data("smart-autocomplete", options); 
+        }
+        //down arrow
+        else if(ev.keyCode == '40'){
+          var current_selection = options.current_selection;
+          var result_suggestions = $(options.resultsContainer).children();
+
+          if(current_selection >= 0)
+            $(result_suggestions[current_selection]).removeClass("highlight");
+
+          if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
+            current_selection = 0;
+
+          options['current_selection'] = current_selection;
+
+          $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
+          
+          //save the options
+          $(this).data("smart-autocomplete", options); 
+
+        }
+
+        //right arrow & enter key
+        else if(ev.keyCode == '39' || ev.keyCode == '13'){
+          var current_selection = options.current_selection;
+          var result_suggestions = $(options.resultsContainer).children();
+
+          $(this).trigger('itemSelect', [ result_suggestions[current_selection] ] );
+          return false;
+        }
+
+        else {
+         //check minimum number of characters are typed
+         if($(this).val().length > options.minCharLimit){
           $(this).trigger('keyIn', [$(this).val()]); 
+         }
+        }
+      });
+
+      //disable form submission while auto suggest field has focus 
+      $(this).focus(function(){
+        $(this).closest("form").bind("submit.block_for_autocomplete", function(ev){
+           return false; 
+        });
+      });
+      $(this).blur(function(ev){
+        $(this).closest("form").unbind("submit.block_for_autocomplete");
+        //set a timeout to trigger hide results
+        //$(this).trigger('hideResults'); 
       });
 
       if(options.forceSelect){
@@ -206,18 +284,39 @@
         });
       }
 
+      //bind events to results container
+      $(options.resultsContainer).delegate('*', 'mouseenter', function(){
+        var current_selection = options.current_selection;
+        var result_suggestions = $(options.resultsContainer).children();
+
+        $(result_suggestions[current_selection]).removeClass("highlight");
+
+        options['current_selection'] = $(this).prevAll().length;
+
+        $(options.context).trigger('itemOver', [this] );
+          
+        //save the options
+        $(this).data("smart-autocomplete", options); 
+
+      });
+
+      $(options.resultsContainer).delegate('*', 'mouseleave', function(){
+        $(options.context).trigger('itemOut', [this] );
+      });
+
       //bind plugin specific events
       $(this).bind('keyIn.smart_autocomplete', function(ev, query){
         var smart_autocomplete_field = this;
         var options = $(smart_autocomplete_field).data("smart-autocomplete");
         var source = options.source || null;
         var filter = options.filter;
+        var context = this;
 
         if(options.disabled)
           return false;
 
-        //call the filter function
-        filter.apply(this, [query, options.source]);
+        //call the filter function with delay
+        setTimeout(function(){ filter.apply(context, [query, options.source]) }, options.delay);
 
       });
 
@@ -231,15 +330,15 @@
         if(options.disabled)
           return false;
 
+        //save the raw results
+        options.rawResults = results;
+        $(smart_autocomplete_field).data("smart-autocomplete", options);
+
         //fire the no match event and exit if no matching results
         if(results.length < 1){
           $(smart_autocomplete_field).trigger('noMatch');
           return false
         }
-
-        //save the raw results
-        options.raw_results = results;
-        $(smart_autocomplete_field).data("smart-autocomplete", options);
 
         //call the results formatter function
         var formatted_results = $.map(results, function(result){
@@ -311,8 +410,29 @@
         $(smart_autocomplete_field).smartAutoComplete().itemSelect(selected_item);
       });
 
+      $(this).bind('itemOver.smart_autocomplete', function(ev, selected_item){
+
+        var smart_autocomplete_field = this;
+
+        //run the default event if no custom handler is defined
+        if($(smart_autocomplete_field).data('events')['itemOver'].length > 1)
+          return;
+
+        $(smart_autocomplete_field).smartAutoComplete().itemOver(selected_item);
+      });
+
+      $(this).bind('itemOut.smart_autocomplete', function(ev, selected_item){
+
+        var smart_autocomplete_field = this;
+
+        //run the default event if no custom handler is defined
+        if($(smart_autocomplete_field).data('events')['itemOut'].length > 1)
+          return;
+
+        $(smart_autocomplete_field).smartAutoComplete().itemOut(selected_item);
+      });
+
     });
   }
 
 })(jQuery);
-
