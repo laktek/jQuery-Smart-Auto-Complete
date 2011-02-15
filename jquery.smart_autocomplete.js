@@ -25,6 +25,7 @@
                    expects to return a string
                    arguments: result 
   resultsContainer: (selector) to which elements the result should be appended.
+  resultElement: (selector) references to the result elements collection (e.g. li, div.result) 
 
   events:
   keyIn: fires when user types into the field
@@ -63,6 +64,7 @@
                             delay: 0,
                             disabled: false,
                             forceSelect: false,
+                            resultElement: "li",
 
                             resultFormatter: function(r){ return ("<li>" + r + "</li>"); },
 
@@ -229,6 +231,7 @@
           //save the options
           $(this).data("smart-autocomplete", options); 
         }
+
         //down arrow
         else if(ev.keyCode == '40'){
           var current_selection = options.current_selection;
@@ -266,26 +269,25 @@
         }
       });
 
-      //disable form submission while auto suggest field has focus 
       $(this).focus(function(){
+        //disable form submission while auto suggest field has focus 
         $(this).closest("form").bind("submit.block_for_autocomplete", function(ev){
            return false; 
         });
+
+        if(options.forceSelect){
+          $(this).select(); 
+        }
       });
+
       $(this).blur(function(ev){
         $(this).closest("form").unbind("submit.block_for_autocomplete");
         //set a timeout to trigger hide results
         //$(this).trigger('hideResults'); 
       });
 
-      if(options.forceSelect){
-        $(this).focus(function(){
-          $(this).select(); 
-        });
-      }
-
       //bind events to results container
-      $(options.resultsContainer).delegate('*', 'mouseenter', function(){
+      $(options.resultsContainer).delegate(options.resultElement, 'mouseenter', function(){
         var current_selection = options.current_selection;
         var result_suggestions = $(options.resultsContainer).children();
 
@@ -300,7 +302,7 @@
 
       });
 
-      $(options.resultsContainer).delegate('*', 'mouseleave', function(){
+      $(options.resultsContainer).delegate(options.resultElement, 'mouseleave', function(){
         $(options.context).trigger('itemOut', [this] );
       });
 
@@ -323,8 +325,6 @@
       $(this).bind('filterReady.smart_autocomplete', function(ev, results){
         var smart_autocomplete_field = this;
         var options = $(smart_autocomplete_field).data("smart-autocomplete");
-        var result_formatter = options.resultFormatter;
-        var result_container = options.resultsContainer;
 
         //exit if smart complete is disabled
         if(options.disabled)
@@ -342,7 +342,7 @@
 
         //call the results formatter function
         var formatted_results = $.map(results, function(result){
-          return result_formatter.apply(smart_autocomplete_field, [result]);
+          return options.resultFormatter.apply(smart_autocomplete_field, [result]);
         });
 
         var formatted_results_html = formatted_results.join("");
@@ -351,18 +351,18 @@
         $(smart_autocomplete_field).smartAutoComplete().clearResults();
 
         //undelegate any previous delegations
-        $(result_container).undelegate('*', 'click.smart_autocomplete');
+        $(options.resultsContainer).undelegate(options.resultElement, 'click.smart_autocomplete');
 
         //append the results to the container
-        $(result_container).append(formatted_results_html);
+        $(options.resultsContainer).append(formatted_results_html);
 
         //bind an event to trigger item selection
-        $(result_container).delegate('*', 'click.smart_autocomplete', function(){
+        $(options.resultsContainer).delegate(options.resultElement, 'click.smart_autocomplete', function(){
           $(smart_autocomplete_field).trigger('itemSelect', this);
         });
 
         //trigger results ready event
-        $(smart_autocomplete_field).trigger('showResults', [result_container, results]);
+        $(smart_autocomplete_field).trigger('showResults', [options.resultsContainer, results]);
 
       });
 

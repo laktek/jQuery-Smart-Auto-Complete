@@ -33,6 +33,10 @@ describe('Smart AutoComplete', function () {
         expect(smart_autocomplete_options.forceSelect).toEqual(false);
       });
 
+      it('result element should be a li', function () {
+        expect(smart_autocomplete_options.resultElement).toEqual("li");
+      });
+
     });
 
     describe('overriding default values', function(){
@@ -78,6 +82,13 @@ describe('Smart AutoComplete', function () {
        smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
 
        expect(smart_autocomplete_options.forceSelect).toEqual(true);
+      });
+
+      it('result element set to be a div', function () {
+        $("#autoCompleteField").smartAutoComplete({resultElement: "div"});
+        smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
+
+        expect(smart_autocomplete_options.resultElement).toEqual("div");
       });
 
     });
