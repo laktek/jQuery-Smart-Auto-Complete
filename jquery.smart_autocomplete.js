@@ -108,8 +108,8 @@
                               if(results_container){}
                                 results_container.css({ 
                                       position: "absolute",
-                                      top: function(){ return context.position().top + context.height(); }, 
-                                      left: function(){ return context.position().left; }, 
+                                      top: function(){ return context.offset().top + context.height(); }, 
+                                      left: function(){ return context.offset().left; }, 
                                       width: function(){ return context.width(); } 
                                 }).show();
 
