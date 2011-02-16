@@ -123,11 +123,9 @@
                             },
 
                             hideResults: function(){    
-                              //if force select is selected, get the best matching value
-                              if(this.forceSelect){
-                                if(this.rawResults.length > 0)
-                                  $(this.context).val(this.rawResults[0]);
-                              }
+                              //if force select is selected, set the current value
+                              if(this.forceSelect)
+                                this.setCurrentSelectionToContext();
 
                               //show the results container if it's hidden (or append it after the field if it was created on the fly)
                               if($(this.resultsContainer))
@@ -187,6 +185,11 @@
                                 $(context).trigger('hideResults');
                                 $(document).unbind("mousedown.smart_autocomplete");
                               });
+                            },
+                            
+                            setCurrentSelectionToContext: function(){
+                                if(this.rawResults.length > 0)
+                                  $(this.context).val(this.rawResults[(this.currentSelection || 0)]);
                             }
 
     };
@@ -224,7 +227,7 @@
 
         //up arrow
         if(ev.keyCode == '38'){
-          var current_selection = options.current_selection || 0;
+          var current_selection = options.currentSelection || 0;
           var result_suggestions = $(options.resultsContainer).children();
 
           if(current_selection >= 0)
@@ -233,7 +236,7 @@
           if(--current_selection <= 0)
             current_selection = 0;
 
-          options['current_selection'] = current_selection;
+          options['currentSelection'] = current_selection;
 
           $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
           
@@ -243,7 +246,7 @@
 
         //down arrow
         else if(ev.keyCode == '40'){
-          var current_selection = options.current_selection;
+          var current_selection = options.currentSelection;
           var result_suggestions = $(options.resultsContainer).children();
 
           if(current_selection >= 0)
@@ -252,7 +255,7 @@
           if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
             current_selection = 0;
 
-          options['current_selection'] = current_selection;
+          options['currentSelection'] = current_selection;
 
           $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
           
@@ -297,12 +300,12 @@
 
       //bind events to results container
       $(options.resultsContainer).delegate(options.resultElement, 'mouseenter', function(){
-        var current_selection = options.current_selection;
+        var current_selection = options.currentSelection;
         var result_suggestions = $(options.resultsContainer).children();
 
         $(result_suggestions[current_selection]).removeClass("highlight");
 
-        options['current_selection'] = $(this).prevAll().length;
+        options['currentSelection'] = $(this).prevAll().length;
 
         $(options.context).trigger('itemOver', [this] );
           
