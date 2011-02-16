@@ -107,23 +107,19 @@
                               var results_container = $(this.resultsContainer);
 
                               //show the results container after aligning it with the field 
-                              if(results_container){}
+                              if(this.alignResultsContainer){
                                 results_container.css({ 
                                       position: "absolute",
                                       top: function(){ return context.offset().top + context.height(); }, 
                                       left: function(){ return context.offset().left; }, 
                                       width: function(){ return context.width(); } 
-                                }).show();
+                                })
+                              }  
+                              results_container.show();
 
                               // hide the results container when click outside of it
-                              $(document).bind('mousedown.smart_autocomplete', 
-                                               function(event){ 
-                                                  var elemIsParent = $.contains(results_container[0], event.target);
-                                                  if(event.target == results_container[0] || event.target == context[0] || elemIsParent) return
-                                 
-                                                  $(context).trigger('hideResults');
-                                                  $(document).unbind("mousedown.smart_autocomplete");
-                              });
+                              this.bindHideResultsContainerOnBlur();
+                              
                             },
 
                             hideResults: function(){    
@@ -179,6 +175,18 @@
                              
                             clearResults: function(){
                               $(this.resultsContainer).html("");
+                            },
+
+                            bindHideResultsContainerOnBlur: function(){
+                              var context = $(this.context);
+                              var results_container = $(this.resultsContainer);
+                              $(document).bind('mousedown.smart_autocomplete', function(event){ 
+                                var elemIsParent = $.contains(results_container[0], event.target);
+                                if(event.target == results_container[0] || event.target == context[0] || elemIsParent) return
+               
+                                $(context).trigger('hideResults');
+                                $(document).unbind("mousedown.smart_autocomplete");
+                              });
                             }
 
     };
@@ -203,6 +211,7 @@
           var default_container = $("._smart_autocomplete_container");
 
         options.resultsContainer = default_container;
+        options.alignResultsContainer = true;
       }
 
       // save the values in data object
@@ -369,6 +378,7 @@
       $(this).bind('showResults.smart_autocomplete', function(ev, result_container, raw_results){
 
         var smart_autocomplete_field = this;
+        var options = $(smart_autocomplete_field).data("smart-autocomplete");
 
         //run the default event if no custom handler is defined
         if($(smart_autocomplete_field).data('events')['showResults'].length > 1)
