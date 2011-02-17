@@ -330,7 +330,7 @@
           return false;
 
         //call the filter function with delay
-        setTimeout(function(){ filter.apply(context, [query, options.source]) }, options.delay);
+        setTimeout(function(){ filter.apply(options, [query, options.source]) }, options.delay);
 
       });
 
@@ -371,6 +371,7 @@
         //bind an event to trigger item selection
         $(options.resultsContainer).delegate(options.resultElement, 'click.smart_autocomplete', function(){
           $(smart_autocomplete_field).trigger('itemSelect', this);
+          return false
         });
 
         //trigger results ready event
