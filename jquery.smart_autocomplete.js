@@ -71,31 +71,23 @@
                             filter: function(term, source){    
                               var context = this;
                               var options = $(context).data('smart-autocomplete');
-                              var truncated_results = function(results){
-                                return (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
-                              }
+                              
 
                               //when source is an array
                               if($.type(source) === "array") {
                                 // directly map
                                 var results = default_filter_matcher(term, source, context);
-                                $(context).trigger('filterReady', [truncated_results(results)]);
+                                return results; 
                               }
                               //when source is a string
                               else if($.type(source) === "string"){
                                 // treat the string as a URL endpoint
                                 // pass the query as 'term'
 
-                                $.ajax({
+                                return $.ajax({
                                   url: source,
                                   data: {"term": term},
-                                  dataType: "json",
-                                  success: function( data, status, xhr ) {
-                                    $(context).trigger('filterReady', [truncated_results(results)]);
-                                  },
-                                  error: function( xhr ) {
-                                     //handle errors
-                                  }
+                                  dataType: "json"
                                 });
                                 
                               }
@@ -266,7 +258,7 @@
 
         //right arrow & enter key
         else if(ev.keyCode == '39' || ev.keyCode == '13'){
-          var current_selection = options.current_selection;
+          var current_selection = options.currentSelection;
           var result_suggestions = $(options.resultsContainer).children();
 
           $(this).trigger('itemSelect', [ result_suggestions[current_selection] ] );
@@ -330,7 +322,14 @@
           return false;
 
         //call the filter function with delay
-        setTimeout(function(){ filter.apply(options, [query, options.source]) }, options.delay);
+        setTimeout(function(){
+          $.when( filter.apply(options, [query, options.source]) ).done(function( results ){
+            //do the trimming
+            var trimmed_results = (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
+
+            $(context).trigger('filterReady', [trimmed_results]);
+          });
+        }, options.delay);
 
       });
 

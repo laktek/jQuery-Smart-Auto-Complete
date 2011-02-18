@@ -108,7 +108,7 @@ describe('Smart AutoComplete', function () {
 
       it("waits for the miliseconds set as the delay before running the filter", function(){
         var output_buffer;
-        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; }, source: "test", delay: 10});
+        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test", delay: 10});
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(10); //this is deprecated
@@ -119,7 +119,7 @@ describe('Smart AutoComplete', function () {
       
       it("if custom filter function is defined, call it with query and source", function(){
         var output_buffer;
-        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; }, source: "test"});
+        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test"});
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(0); //this is deprecated
@@ -129,8 +129,8 @@ describe('Smart AutoComplete', function () {
       });
   
       it("if custom filter function is not defined, call default filter with query and source", function(){
-        var mock_autocomplete_obj = {filter: function(){}, source: 'test'};
-        spyOn(mock_autocomplete_obj, 'filter');
+        var mock_autocomplete_obj = {filter: function(){}, source: 'test', noMatch: function(){} };
+        spyOn(mock_autocomplete_obj, 'filter').andReturn([]);
 
         $("#autoCompleteField").smartAutoComplete({});
         $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
@@ -451,24 +451,8 @@ describe('Smart AutoComplete', function () {
       });
 
       it("returns the matching results when using an array as the source", function(){
-        var event_output = null;
-
-        $("#autoCompleteField").unbind('filterReady.smart_autocomplete');
-        $("#autoCompleteField").bind('filterReady', function(ev, results){ event_output = results });
-
-        $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', ['test', 'table', 'abc']);
-        expect(event_output).toEqual(['test', 'table']);
+        expect( $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', ['test', 'table', 'abc']) ).toEqual(['test', 'table']);
       }); 
-
-      it("won't return more than the max results", function(){
-        var event_output = null;
-
-        $("#autoCompleteField").unbind('filterReady.smart_autocomplete');
-        $("#autoCompleteField").bind('filterReady', function(ev, results){ event_output = results });
-
-        $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', ['test', 'table', 'abc']);
-        expect(event_output).toEqual(['test', 'table']);
-      });
 
       it("initates an ajax call when source is given as a string", function(){
         spyOn($, 'ajax')
