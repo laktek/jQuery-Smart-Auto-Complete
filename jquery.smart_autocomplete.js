@@ -94,75 +94,8 @@
 
                             },
 
-                            showResults: function(){    
-                              var context = $(this.context);
-                              var results_container = $(this.resultsContainer);
+                            alignResultsContainer: false,
 
-                              //show the results container after aligning it with the field 
-                              if(this.alignResultsContainer){
-                                results_container.css({ 
-                                      position: "absolute",
-                                      top: function(){ return context.offset().top + context.height(); }, 
-                                      left: function(){ return context.offset().left; }, 
-                                      width: function(){ return context.width(); } 
-                                })
-                              }  
-                              results_container.show();
-
-                              // hide the results container when click outside of it
-                              this.bindHideResultsContainerOnBlur();
-                              
-                            },
-
-                            hideResults: function(){    
-                              //if force select is selected, set the current value
-                              if(this.forceSelect)
-                                this.setCurrentSelectionToContext();
-
-                              //show the results container if it's hidden (or append it after the field if it was created on the fly)
-                              if($(this.resultsContainer))
-                                $(this.resultsContainer).hide();
-                            },
-
-                            noMatch: function(){    
-                              var result_container = $(this.resultsContainer);
-                              if(result_container){
-                               //clear previous results
-                               this.clearResults(); 
-
-                               result_container.append("<li class='_smart_autocomplete_no_result'>Sorry, No Results Found</li>");
-                              }
-
-                            },
-
-                            itemSelect: function(selected_item){    
-                              //return if no result item is selected
-                              if($(selected_item).hasClass('_smart_autocomplete_no_result'))
-                                return;
-
-                              //get the context
-                              var context = this.context;
-
-                              //get the text from selected item
-                              var selected_value = $(selected_item).text();
-                              //set it as the value of the autocomplete field
-                              $(context).val(selected_value); 
-
-                              //clear raw results hash
-                              this.rawResults = [];
-
-                              //hide results container
-                              $(context).trigger('hideResults');
-                            },
-
-                            itemOver: function(selected_item){    
-                              $(selected_item).addClass("highlight");
-                            },
-
-                            itemOut: function(selected_item){    
-                              $(selected_item).removeClass("highlight");
-                            },
-                             
                             clearResults: function(){
                               $(this.resultsContainer).html("");
                             },
@@ -185,7 +118,190 @@
                             }
 
     };
-    
+
+    //define the default events
+    $.event.special.keyIn = {
+      setup: function(){ return false; }, 
+
+      _default: function(ev){
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+        var source = options.source || null;
+        var filter = options.filter;
+
+        //event specific data
+        var query = ev.customData.query;
+
+        if(options.disabled)
+          return false;
+
+        //call the filter function with delay
+        setTimeout(function(){
+          $.when( filter.apply(options, [query, options.source]) ).done(function( results ){
+            //do the trimming
+            var trimmed_results = (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
+
+            $(context).trigger('filterReady', [trimmed_results]);
+          });
+        }, options.delay);
+      }
+    };
+
+    $.event.special.filterReady = {
+      setup: function(){ return false },
+
+      _default: function(ev){
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+
+        //event specific data
+        var results = ev.customData.results;
+
+        //exit if smart complete is disabled
+        if(options.disabled)
+          return false;
+
+        //save the raw results
+        options.rawResults = results;
+        $(context).data("smart-autocomplete", options);
+
+        //fire the no match event and exit if no matching results
+        if(results.length < 1){
+          $(context).trigger('noMatch');
+          return false
+        }
+
+        //call the results formatter function
+        var formatted_results = $.map(results, function(result){
+          return options.resultFormatter.apply(options, [result]);
+        });
+
+        var formatted_results_html = formatted_results.join("");
+
+        //clear all previous results 
+        $(context).smartAutoComplete().clearResults();
+
+        //append the results to the container
+        $(options.resultsContainer).append(formatted_results_html);
+
+        //trigger results ready event
+        $(context).trigger('showResults', [results]);
+      }             
+    };
+
+    $.event.special.showResults = {
+      setup: function(){ return false },
+
+      _default: function(ev){    
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+        var results_container = $(options.resultsContainer);
+
+        //event specific data
+        var raw_results = ev.customData.raw_results; 
+
+        //show the results container after aligning it with the field 
+        if(options.alignResultsContainer){
+          results_container.css({ 
+                position: "absolute",
+                top: function(){ return $(context).offset().top + $(context).height(); }, 
+                left: function(){ return $(context).offset().left; }, 
+                width: function(){ return $(context).width(); } 
+          })
+        }  
+        results_container.show();
+
+        // hide the results container when click outside of it
+        options.bindHideResultsContainerOnBlur();
+        
+      }
+    };
+
+    $.event.special.hideResults = {
+      setup: function(){ return false },
+
+      _default: function(ev){    
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+
+        //if force select is selected, set the current value
+        if(options.forceSelect)
+          options.setCurrentSelectionToContext();
+
+        //hide the results container
+        $(options.resultsContainer).hide();
+      }
+    };
+
+    $.event.special.noMatch = {
+      setup: function(){ return false },
+
+      _default: function(ev){    
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+        var result_container = $(options.resultsContainer);
+
+        if(result_container){
+         //clear previous results
+         options.clearResults(); 
+
+         result_container.append("<li class='_smart_autocomplete_no_result'>Sorry, No Results Found</li>");
+        }
+
+      }
+    };
+
+    $.event.special.itemSelect = { 
+      setup: function(){ return false },
+
+      _default: function(ev){    
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+
+        //event specific data
+        var selected_item = ev.customData.item;
+
+        //return if no result item is selected
+        if($(selected_item).hasClass('_smart_autocomplete_no_result'))
+          return;
+
+        //get the text from selected item
+        var selected_value = $(selected_item).text();
+        //set it as the value of the autocomplete field
+        $(context).val(selected_value); 
+
+        //clear raw results hash
+        options.rawResults = [];
+
+        //hide results container
+        $(context).trigger('hideResults');
+      }
+    };
+
+    $.event.special.itemOver = {
+      setup: function(){ return false },
+
+      _default: function(ev){    
+
+        //event specific data
+        var item = ev.customData.item;
+
+        $(item).addClass("highlight");
+      }
+    };
+
+    $.event.special.itemOut = { 
+      setup: function(){ return false },
+
+      _default: function(ev){    
+
+        //event specific data
+        var item = ev.customData.item;
+
+        $(item).removeClass("highlight");
+      }
+    }
+
     var passed_options = arguments[0];
 
     return this.each(function(i) { 
@@ -196,7 +312,6 @@
 
       //if a result container is not defined
       if(!options.resultsContainer){
-
         //define the default result container if it is already not defined
         if($("._smart_autocomplete_container").length < 1){
           var default_container = $("<ul class='_smart_autocomplete_container' style='display:none'></ul>");
@@ -223,7 +338,7 @@
           var result_suggestions = $(options.resultsContainer).children();
 
           if(current_selection >= 0)
-            $(result_suggestions[current_selection]).removeClass("highlight");
+            $(options.context).trigger('itemOut', result_suggestions[current_selection] );
 
           if(--current_selection <= 0)
             current_selection = 0;
@@ -242,7 +357,7 @@
           var result_suggestions = $(options.resultsContainer).children();
 
           if(current_selection >= 0)
-            $(result_suggestions[current_selection]).removeClass("highlight");
+            $(options.context).trigger('itemOut', result_suggestions[current_selection] );
 
           if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
             current_selection = 0;
@@ -291,11 +406,9 @@
       });
 
       //bind events to results container
-      $(options.resultsContainer).delegate(options.resultElement, 'mouseenter', function(){
+      $(options.resultsContainer).delegate(options.resultElement, 'mouseenter.smart_autocomplete', function(){
         var current_selection = options.currentSelection;
         var result_suggestions = $(options.resultsContainer).children();
-
-        $(result_suggestions[current_selection]).removeClass("highlight");
 
         options['currentSelection'] = $(this).prevAll().length;
 
@@ -306,146 +419,27 @@
 
       });
 
-      $(options.resultsContainer).delegate(options.resultElement, 'mouseleave', function(){
+      $(options.resultsContainer).delegate(options.resultElement, 'mouseleave.smart_autocomplete', function(){
         $(options.context).trigger('itemOut', [this] );
       });
 
+      $(options.resultsContainer).delegate(options.resultElement, 'click.smart_autocomplete', function(){
+        $(options.context).trigger('itemSelect', [this]);
+        return false
+      });
+
       //bind plugin specific events
-      $(this).bind('keyIn.smart_autocomplete', function(ev, query){
-        var smart_autocomplete_field = this;
-        var options = $(smart_autocomplete_field).data("smart-autocomplete");
-        var source = options.source || null;
-        var filter = options.filter;
-        var context = this;
-
-        if(options.disabled)
-          return false;
-
-        //call the filter function with delay
-        setTimeout(function(){
-          $.when( filter.apply(options, [query, options.source]) ).done(function( results ){
-            //do the trimming
-            var trimmed_results = (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
-
-            $(context).trigger('filterReady', [trimmed_results]);
-          });
-        }, options.delay);
-
+      $(this).bind({
+        keyIn: function(ev, query){ ev.customData  = {'query': query } ; },
+        filterReady: function(ev, results){ ev.customData  = {'results': results }; }, 
+        showResults: function(ev, raw_results){ ev.customData = {'raw_results': raw_results } },
+        noMatch: function(){},
+        hideResults: function(){},
+        itemSelect: function(ev, item){ ev.customData = {'item': item }; },
+        itemOver: function(ev, item){ ev.customData = {'item': item }; },
+        itemOut: function(ev, item){ ev.customData = {'item': item }; }
       });
-
-      $(this).bind('filterReady.smart_autocomplete', function(ev, results){
-        var smart_autocomplete_field = this;
-        var options = $(smart_autocomplete_field).data("smart-autocomplete");
-
-        //exit if smart complete is disabled
-        if(options.disabled)
-          return false;
-
-        //save the raw results
-        options.rawResults = results;
-        $(smart_autocomplete_field).data("smart-autocomplete", options);
-
-        //fire the no match event and exit if no matching results
-        if(results.length < 1){
-          $(smart_autocomplete_field).trigger('noMatch');
-          return false
-        }
-
-        //call the results formatter function
-        var formatted_results = $.map(results, function(result){
-          return options.resultFormatter.apply(smart_autocomplete_field, [result]);
-        });
-
-        var formatted_results_html = formatted_results.join("");
-
-        //clear all previous results 
-        $(smart_autocomplete_field).smartAutoComplete().clearResults();
-
-        //undelegate any previous delegations
-        $(options.resultsContainer).undelegate(options.resultElement, 'click.smart_autocomplete');
-
-        //append the results to the container
-        $(options.resultsContainer).append(formatted_results_html);
-
-        //bind an event to trigger item selection
-        $(options.resultsContainer).delegate(options.resultElement, 'click.smart_autocomplete', function(){
-          $(smart_autocomplete_field).trigger('itemSelect', this);
-          return false
-        });
-
-        //trigger results ready event
-        $(smart_autocomplete_field).trigger('showResults', [options.resultsContainer, results]);
-
-      });
-
-      $(this).bind('showResults.smart_autocomplete', function(ev, result_container, raw_results){
-
-        var smart_autocomplete_field = this;
-        var options = $(smart_autocomplete_field).data("smart-autocomplete");
-
-        //run the default event if no custom handler is defined
-        if($(smart_autocomplete_field).data('events')['showResults'].length > 1)
-          return;
-
-        $(smart_autocomplete_field).smartAutoComplete().showResults(result_container, raw_results);
-      });
-
-      $(this).bind('hideResults.smart_autocomplete', function(ev){
-
-        var smart_autocomplete_field = this;
-
-        //run the default event if no custom handler is defined
-        if($(smart_autocomplete_field).data('events')['hideResults'].length > 1)
-          return;
-
-        $(smart_autocomplete_field).smartAutoComplete().hideResults();
-      });
-
-      $(this).bind('noMatch.smart_autocomplete', function(ev){
-
-        var smart_autocomplete_field = this;
-
-        //run the default event if no custom handler is defined
-        if($(smart_autocomplete_field).data('events')['noMatch'].length > 1)
-          return;
-
-        $(smart_autocomplete_field).smartAutoComplete().noMatch();
-      });
-
-      $(this).bind('itemSelect.smart_autocomplete', function(ev, selected_item){
-
-        var smart_autocomplete_field = this;
-
-        //run the default event if no custom handler is defined
-        if($(smart_autocomplete_field).data('events')['itemSelect'].length > 1)
-          return;
-
-        $(smart_autocomplete_field).smartAutoComplete().itemSelect(selected_item);
-      });
-
-      $(this).bind('itemOver.smart_autocomplete', function(ev, selected_item){
-
-        var smart_autocomplete_field = this;
-
-        //run the default event if no custom handler is defined
-        if($(smart_autocomplete_field).data('events')['itemOver'].length > 1)
-          return;
-
-        $(smart_autocomplete_field).smartAutoComplete().itemOver(selected_item);
-      });
-
-      $(this).bind('itemOut.smart_autocomplete', function(ev, selected_item){
-
-        var smart_autocomplete_field = this;
-
-        //run the default event if no custom handler is defined
-        if($(smart_autocomplete_field).data('events')['itemOut'].length > 1)
-          return;
-
-        $(smart_autocomplete_field).smartAutoComplete().itemOut(selected_item);
-      });
-
     });
+      
   }
-
 })(jQuery);

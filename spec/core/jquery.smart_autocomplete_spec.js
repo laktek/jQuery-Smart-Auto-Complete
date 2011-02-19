@@ -95,6 +95,30 @@ describe('Smart AutoComplete', function () {
 
     describe('keyIn event', function(){
 
+      it("should be fired if the maximum char limit is reached", function(){
+        $("#autoCompleteField").smartAutoComplete({minCharLimit: 2 });
+
+        var output_buffer = "";
+        $("#autoCompleteField").bind('keyIn', function(ev){ output_buffer = "keyin called"; ev.preventDefault(); });
+
+        $("#autoCompleteField").val("test");
+        $("#autoCompleteField").trigger('keyup');
+
+        expect(output_buffer).toEqual("keyin called");
+      });
+
+      it("should not be fired if the maximum char limit is not reached", function(){
+        $("#autoCompleteField").smartAutoComplete({minCharLimit: 4});
+
+        var output_buffer = "";
+        $("#autoCompleteField").bind('keyIn', function(ev){ output_buffer = "keyin called"; ev.preventDefault(); });
+
+        $("#autoCompleteField").val("te");
+        $("#autoCompleteField").trigger('keyup');
+
+        expect(output_buffer).not.toEqual("keyin called");
+      });
+
       it("performs no action if disabled", function(){
         var mock_autocomplete_obj = {filter: function(){}, source: 'test', disabled: true};
         spyOn(mock_autocomplete_obj, 'filter');
@@ -109,6 +133,7 @@ describe('Smart AutoComplete', function () {
       it("waits for the miliseconds set as the delay before running the filter", function(){
         var output_buffer;
         $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test", delay: 10});
+        $("#autoCompleteField").bind('filterReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(10); //this is deprecated
@@ -120,6 +145,7 @@ describe('Smart AutoComplete', function () {
       it("if custom filter function is defined, call it with query and source", function(){
         var output_buffer;
         $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test"});
+        $("#autoCompleteField").bind('filterReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(0); //this is deprecated
@@ -129,11 +155,12 @@ describe('Smart AutoComplete', function () {
       });
   
       it("if custom filter function is not defined, call default filter with query and source", function(){
-        var mock_autocomplete_obj = {filter: function(){}, source: 'test', noMatch: function(){} };
+        var mock_autocomplete_obj = {filter: function(){}, source: 'test', clearResults: function(){} };
         spyOn(mock_autocomplete_obj, 'filter').andReturn([]);
 
         $("#autoCompleteField").smartAutoComplete({});
         $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").bind('filterReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(0); //this is deprecated
@@ -151,6 +178,7 @@ describe('Smart AutoComplete', function () {
 
       it("persists the raw results", function(){
         $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteField").data("smart-autocomplete").rawResults).toEqual(["a", "b", "c"]);
@@ -159,6 +187,7 @@ describe('Smart AutoComplete', function () {
 
       it("format the results using the result formatter function", function(){
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
+        $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
 
         expect(result_formatter_called).toBeTruthy();
@@ -167,6 +196,7 @@ describe('Smart AutoComplete', function () {
       it("should remove previous results", function(){
         setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'><span class='smart_autocomplete_result'>test</span></div>");
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function, resultsContainer: "#autoCompleteAppendToBlock" });
+        $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
@@ -175,6 +205,7 @@ describe('Smart AutoComplete', function () {
       it("should append the results to given result container", function(){
         setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'></div>");
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function, resultsContainer: "#autoCompleteAppendToBlock" });
+        $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
@@ -190,7 +221,7 @@ describe('Smart AutoComplete', function () {
 
       it("fires the show results event", function(){
         var event_output = "";
-        $("#autoCompleteField").bind('showResults', function(){ event_output = "show results" });
+        $("#autoCompleteField").bind('showResults', function(ev){ event_output = "show results"; ev.preventDefault(); });
 
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
         $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
@@ -200,7 +231,7 @@ describe('Smart AutoComplete', function () {
 
       it("fires the no match event if filter returns empty", function(){
         var event_output = "";
-        $("#autoCompleteField").bind('noMatch', function(){ event_output = "no match" });
+        $("#autoCompleteField").bind('noMatch', function(ev){ event_output = "no match"; ev.preventDefault(); });
 
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
         $("#autoCompleteField").trigger('filterReady', [[]]);
@@ -210,239 +241,118 @@ describe('Smart AutoComplete', function () {
     
     });
 
-    describe('noMatch event', function(){
+    describe('no match event', function(){
 
-      it("should run the default handler if no custom handlers defined", function(){
-        var mock_autocomplete_obj = {noMatch: function(){}};
-        spyOn(mock_autocomplete_obj, 'noMatch');
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+      it("should append no results found banner to result container", function(){
+        setFixtures("<input id='autoCompleteField'/><ul id='resultsContainer'></ul>");
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
         $("#autoCompleteField").trigger('noMatch');
 
-        expect(mock_autocomplete_obj.noMatch).toHaveBeenCalled();
-      }); 
+        expect($("#resultsContainer")).toHaveText('Sorry, No Results Found');
 
-      it("should not run the default handler if any custom handlers defined", function(){
-        var mock_autocomplete_obj = {noMatch: function(){}};
-        spyOn(mock_autocomplete_obj, 'noMatch');
-
-        $("#autoCompleteField").bind('noMatch', function(){});
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('noMatch');
-
-        expect(mock_autocomplete_obj.noMatch).not.toHaveBeenCalled();
-      }); 
-
-      it("should run all custom handlers defined", function(){
-        var event_output = "";
-        $("#autoCompleteField").bind('noMatch', function(){ event_output += "event1 "});
-        $("#autoCompleteField").bind('noMatch', function(){ event_output += "event2"});
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").trigger('noMatch');
-
-        expect(event_output).toEqual("event1 event2");
       });
 
     });
 
-    describe('showResults event', function(){
+    describe('show results event', function(){
 
-      it("should run the default handler if no custom handlers defined", function(){
-        var mock_autocomplete_obj = {showResults: function(){}};
-        spyOn(mock_autocomplete_obj, 'showResults');
+      it("should apply styles to container relative to field", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='resultsContainer' style='display:none'></div>");
 
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('showResults');
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
+        $("#autoCompleteField").trigger('showResults', [[]]);
 
-        expect(mock_autocomplete_obj.showResults).toHaveBeenCalled();
-      }); 
+        expect($("#resultsContainer").attr('style')).not.toBeEmpty();
 
-      it("should not run the default handler if any custom handlers defined", function(){
-        var mock_autocomplete_obj = {showResults: function(){}};
-        spyOn(mock_autocomplete_obj, 'showResults');
+      });
 
-        $("#autoCompleteField").bind('showResults', function(){});
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('showResults');
+      it("should make result container visible", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='resultsContainer' style='display:none'></div>");
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
+        $("#autoCompleteField").trigger('showResults', [[]]);
 
-        expect(mock_autocomplete_obj.showResults).not.toHaveBeenCalled();
-      }); 
+        expect($("#resultsContainer")).toBeVisible();
 
-      it("should run all custom handlers defined", function(){
-        var event_output = "";
-        $("#autoCompleteField").bind('showResults', function(){ event_output += "event1 "});
-        $("#autoCompleteField").bind('showResults', function(){ event_output += "event2"});
+      });
 
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").trigger('showResults');
-
-        expect(event_output).toEqual("event1 event2");
+      it("should bind an event to document to track out of focus clicks", function(){
       });
 
     });
 
-    describe('hideResults event', function(){
+    describe('hide results event', function(){
 
-      it("should run the default handler if no custom handlers defined", function(){
-        var mock_autocomplete_obj = {hideResults: function(){}};
-        spyOn(mock_autocomplete_obj, 'hideResults');
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+      it("should make result container hidden", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='resultsContainer'></div>");
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
         $("#autoCompleteField").trigger('hideResults');
 
-        expect(mock_autocomplete_obj.hideResults).toHaveBeenCalled();
-      }); 
+        expect($("#resultsContainer")).not.toBeVisible();
 
-      it("should not run the default handler if any custom handlers defined", function(){
-        var mock_autocomplete_obj = {hideResults: function(){}};
-        spyOn(mock_autocomplete_obj, 'hideResults');
+      });
 
-        $("#autoCompleteField").bind('hideResults', function(){});
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+      it("fill in the field with best matching value if force select is enabled and field is not empty", function(){
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'] });
         $("#autoCompleteField").trigger('hideResults');
 
-        expect(mock_autocomplete_obj.hideResults).not.toHaveBeenCalled();
-      }); 
+        expect($("#autoCompleteField")).toHaveValue('Apple');
+      })
 
-      it("should run all custom handlers defined", function(){
-        var event_output = "";
-        $("#autoCompleteField").bind('hideResults', function(){ event_output += "event1 "});
-        $("#autoCompleteField").bind('hideResults', function(){ event_output += "event2"});
+    });
 
+    describe('item select event', function(){
+
+      it('should set the text of selected item as the value of field', function(){
+        setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
         $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").trigger('hideResults');
 
-        expect(event_output).toEqual("event1 event2");
+        $("#autoCompleteField").trigger('itemSelect', [$("#selectedField")]);
+        expect($("#autoCompleteField")).toHaveValue('I was selected!');
+      });
+
+      it("should not set the text of if the item is no match text", function(){
+        setFixtures("<input id='autoCompleteField'/><div class='_smart_autocomplete_no_result'>No Result</div>");
+        $("#autoCompleteField").smartAutoComplete({});
+
+        $("#autoCompleteField").trigger('itemSelect', [$("div._smart_autocomplete_no_result")]);
+        expect($("#autoCompleteField")).not.toHaveValue('No Result');
+      });
+
+      it("should trigger the hide results event after a value is selected", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
+        var output_buffer = "";
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").bind('hideResults', function(){ output_buffer = "hide results called"});
+
+        $("#autoCompleteField").trigger('itemSelect', [$("#selectedField")]);
+        expect(output_buffer).toEqual("hide results called");
       });
 
     });
 
-    describe('itemSelect event', function(){
+    describe('item over event', function(){
 
-      var selected_item = "mock item";
-
-      it("should run the default handler if no custom handlers defined", function(){
-        var mock_autocomplete_obj = {itemSelect: function(){}};
-        spyOn(mock_autocomplete_obj, 'itemSelect');
-
+      it('should add highlight class to the element', function(){
+        setFixtures("<input id='autoCompleteField'/><div id='highlightedField'>I was highlighted!</div>");
         $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('itemSelect', selected_item);
 
-        expect(mock_autocomplete_obj.itemSelect).toHaveBeenCalledWith(selected_item);
-      }); 
-
-      it("should not run the default handler if any custom handlers defined", function(){
-        var mock_autocomplete_obj = {itemSelect: function(){}};
-        spyOn(mock_autocomplete_obj, 'itemSelect');
-
-        $("#autoCompleteField").bind('itemSelect', function(){});
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('itemSelect', selected_item);
-
-        expect(mock_autocomplete_obj.itemSelect).not.toHaveBeenCalled();
-      }); 
-
-      it("should run all custom handlers defined", function(){
-        var event_output = "";
-        $("#autoCompleteField").bind('itemSelect', function(){ event_output += "event1 "});
-        $("#autoCompleteField").bind('itemSelect', function(){ event_output += "event2"});
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").trigger('itemSelect');
-
-        expect(event_output).toEqual("event1 event2");
+        $("#autoCompleteField").trigger('itemOver', [$("#highlightedField")]);
+        expect($("#highlightedField")).toHaveClass('highlight');
       });
 
-    });
+    })
 
-    describe('itemOver event', function(){
+    describe('item out event', function(){
 
-      var selected_item = "mock item";
-
-      it("should run the default handler if no custom handlers defined", function(){
-        var mock_autocomplete_obj = {itemOver: function(){}};
-        spyOn(mock_autocomplete_obj, 'itemOver');
-
+      it('should remove highlight class from the element', function(){
+        setFixtures("<input id='autoCompleteField'/><div class='highlight' id='highlightedField'>I was highlighted!</div>");
         $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('itemOver', selected_item);
 
-        expect(mock_autocomplete_obj.itemOver).toHaveBeenCalledWith(selected_item);
-      }); 
-
-      it("should not run the default handler if any custom handlers defined", function(){
-        var mock_autocomplete_obj = {itemOver: function(){}};
-        spyOn(mock_autocomplete_obj, 'itemOver');
-
-        $("#autoCompleteField").bind('itemOver', function(){});
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('itemOver', selected_item);
-
-        expect(mock_autocomplete_obj.itemOver).not.toHaveBeenCalled();
-      }); 
-
-      it("should run all custom handlers defined", function(){
-        var event_output = "";
-        $("#autoCompleteField").bind('itemOver', function(){ event_output += "event1 "});
-        $("#autoCompleteField").bind('itemOver', function(){ event_output += "event2"});
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").trigger('itemOver');
-
-        expect(event_output).toEqual("event1 event2");
+        $("#autoCompleteField").trigger('itemOut', [$("#highlightedField")]);
+        expect($("#highlightedField")).not.toHaveClass('highlight');
       });
 
-    });
-
-    describe('itemOut event', function(){
-
-      var selected_item = "mock item";
-
-      it("should run the default handler if no custom handlers defined", function(){
-        var mock_autocomplete_obj = {itemOut: function(){}};
-        spyOn(mock_autocomplete_obj, 'itemOut');
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('itemOut', selected_item);
-
-        expect(mock_autocomplete_obj.itemOut).toHaveBeenCalledWith(selected_item);
-      }); 
-
-      it("should not run the default handler if any custom handlers defined", function(){
-        var mock_autocomplete_obj = {itemOut: function(){}};
-        spyOn(mock_autocomplete_obj, 'itemOut');
-
-        $("#autoCompleteField").bind('itemOut', function(){});
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").trigger('itemOut', selected_item);
-
-        expect(mock_autocomplete_obj.itemOut).not.toHaveBeenCalled();
-      }); 
-
-      it("should run all custom handlers defined", function(){
-        var event_output = "";
-        $("#autoCompleteField").bind('itemOut', function(){ event_output += "event1 "});
-        $("#autoCompleteField").bind('itemOut', function(){ event_output += "event2"});
-
-        $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").trigger('itemOut');
-
-        expect(event_output).toEqual("event1 event2");
-      });
-
-    });
+    })
 
     describe('default filter', function(){
 
@@ -463,136 +373,4 @@ describe('Smart AutoComplete', function () {
       }); 
 
     });
-
-    describe('default no match', function(){
-
-      it("should append no results found banner to result container", function(){
-        setFixtures("<input id='autoCompleteField'/><ul id='resultsContainer'></ul>");
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").smartAutoComplete().noMatch();
-
-        expect($("#resultsContainer")).toHaveText('Sorry, No Results Found');
-
-      });
-
-    });
-
-    describe('default show results', function(){
-
-      it("should apply styles to container relative to field", function(){
-        setFixtures("<input id='autoCompleteField'/><div id='resultsContainer' style='display:none'></div>");
-
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").smartAutoComplete().showResults();
-
-        expect($("#resultsContainer").attr('style')).not.toBeEmpty();
-
-      });
-
-      it("should make result container visible", function(){
-        setFixtures("<input id='autoCompleteField'/><div id='resultsContainer' style='display:none'></div>");
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").smartAutoComplete().showResults();
-
-        expect($("#resultsContainer")).toBeVisible();
-
-      });
-
-      it("should bind an event to document to track out of focus clicks", function(){
-      });
-
-    });
-
-    describe('default hide results', function(){
-
-      it("should make result container hidden", function(){
-        setFixtures("<input id='autoCompleteField'/><div id='resultsContainer'></div>");
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").smartAutoComplete().hideResults();
-
-        expect($("#resultsContainer")).not.toBeVisible();
-
-      });
-
-      it("fill in the field with best matching value if force select is enabled and field is not empty", function(){
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'] });
-        $("#autoCompleteField").smartAutoComplete().hideResults();
-
-        expect($("#autoCompleteField")).toHaveValue('Apple');
-
-
-      })
-
-    });
-
-    describe('default item select', function(){
-
-      it('should set the text of selected item as the value of field', function(){
-        setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
-        $("#autoCompleteField").smartAutoComplete({});
-
-        $("#autoCompleteField").smartAutoComplete().itemSelect($("#selectedField"));
-        expect($("#autoCompleteField")).toHaveValue('I was selected!');
-      });
-
-      it("should not set the text of if the item is no match text", function(){
-        setFixtures("<input id='autoCompleteField'/><div class='_smart_autocomplete_no_result'>No Result</div>");
-        $("#autoCompleteField").smartAutoComplete({});
-
-        $("#autoCompleteField").smartAutoComplete().itemSelect($("div._smart_autocomplete_no_result"));
-        expect($("#autoCompleteField")).not.toHaveValue('No Result');
-      });
-
-      it("should trigger the hide results event after a value is selected", function(){
-        setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
-        $("#autoCompleteField").smartAutoComplete({});
-        var mock_autocomplete_obj =$("#autoCompleteField").data("smart-autocomplete");
-        spyOn(mock_autocomplete_obj, 'hideResults');
-
-        $("#autoCompleteField").smartAutoComplete().itemSelect($("#selectedField"));
-        expect(mock_autocomplete_obj.hideResults).toHaveBeenCalled();
- 
-      });
-
-    });
-
-    describe('default item over', function(){
-
-      it('should add highlight class to the element', function(){
-        setFixtures("<input id='autoCompleteField'/><div id='highlightedField'>I was highlighted!</div>");
-        $("#autoCompleteField").smartAutoComplete({});
-
-        $("#autoCompleteField").smartAutoComplete().itemOver($("#highlightedField"));
-        expect($("#highlightedField")).toHaveClass('highlight');
-      });
-
-    })
-
-    describe('default item out', function(){
-
-      it('should remove highlight class from the element', function(){
-        setFixtures("<input id='autoCompleteField'/><div class='highlight' id='highlightedField'>I was highlighted!</div>");
-        $("#autoCompleteField").smartAutoComplete({});
-
-        $("#autoCompleteField").smartAutoComplete().itemOut($("#highlightedField"));
-        expect($("#highlightedField")).not.toHaveClass('highlight');
-      });
-
-    })
-
-    //pending
-    describe('user starts typing', function(){
-
-      it("should not trigger key-in event if minimum number of characters are not typed") 
-
-      it("should apply the delay") 
-
-    });
-
-    describe('force select', function(){
-      
-     it('should select field on focus') 
-
-    });
-
 });
