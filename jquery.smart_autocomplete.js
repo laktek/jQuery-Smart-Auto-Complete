@@ -382,7 +382,7 @@
 
         else {
          //check minimum number of characters are typed
-         if($(this).val().length > options.minCharLimit){
+         if($(this).val().length >= options.minCharLimit){
           $(this).trigger('keyIn', [$(this).val()]); 
          }
         }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart AutoComplete Samples</title>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
+
+  <link media="screen" type="text/css" href="stylesheets/application.css" rel="stylesheet">
+  <link media="screen" type="text/css" href="stylesheets/smooth_theme.css" rel="stylesheet">
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+  <script type="text/javascript" src="../jquery.smart_autocomplete.js"></script>
+
+  <script type="text/javascript">
+    $(function(){
+        $("#search_field").smartAutoComplete({
+          filter: function(term){
+           return $.Deferred(function(dfd){ 
+              $.getJSON("http://api.duckduckgo.com/?o=json&callback=?&q=" + term).success( function(data){
+                dfd.resolve( $.map(data.Results, function(r){ return r.Result; }) );          
+              }); 
+           }).promise(); 
+          },
+          resultsContainer: "div#results",
+          resultFormatter: function(r){ return "<p>" + r + "</p>" },
+          minCharLimit: 2, delay: 200});
+    });
+  </script>
+
+  <style>
+    ul li {list-style: none; cursor: pointer;}
+    li.highlight {background-color: #c0c0c0;}
+    ul { margin: 10px 0; padding: 5px; background-color: #aeaeae; }
+
+  </style>
+
+</head>
+
+<body>
+   <div id="container">
+      <div id="header"><h1>DuckDuckGo Instant Search</h1></div>
+      <div id="wrapper">
+        <div id="content">
+          <form>
+            <input type="text" autocomplete="off" id="search_field" placeholder="Type here to start searching"/>
+          </form>
+          <div id="results">
+
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>
