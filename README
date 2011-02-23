@@ -1,32 +1,122 @@
- Smart Auto Complete plugin 
+# jQuery Smart Auto Complete plugin 
+ 
+## Requirements
 
- $(target).smartAutoComplete({options})
+jQuery 1.5 or above
 
-options:
-minCharLength: (integer) minimum characters user have to type before invoking the autocomplete (default: 2)
-maxResults: (integer) maximum number of results to return (default: -1 (unlimited))
-delay: (integer) delay before autocomplete starts (default: 10ms)
-typeAhead: (boolean) fill the field with the best matching result, as in google instant search (default: false)
-           and fires the select event.
-disabled: (boolean) whether autocomplete disabled on the field (default: false)
-source:  (array/function) you can supply an array or callback function that would return an array for the source
-         this is optional if you prefer to have your own filter method 
-         eg: ["Apple", "Banana", "Mango"] or [["Apple", 1], ["Banana", 2], ["Mango", 3]]
-         or [["Apple", 1, {picture: 'apple.jpg'}], ["Banana", 2, {picture: 'banana.jpg'}], ["Mango", 3, {picture: 'mango.jpg'}]]
-filter: (function) define a function on that would return matching items to the query (use this if you want to override the default filtering algorithm)
-        expects to return an array 
-        arguments: query, list
-resultFormatter: (function) the function you supply here will be called to format the output of the individual result.
-                 expects to return a string
-                 arguments: result 
-appendTo: (selector) to which elements the result should be appended.
-forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default false)
+## Usage
 
-events:
-select: fires when user selects an item from the result list
-enable: fires when autocomplete is disabled
-disable: fires when autocomplete is enabled
-resultsReady: fires when filtered results are appended to the view 
-noMatch: fires when filter returns an empty array to append to the view
+In the header section of your HTML page add two script tags referencing to core jQuery and smart autocomplete plugin. It should look similar to code below:
+
+    <script src="jquery.js" type="text/javascript"></script>
+    <script src="jquery.smart_autocomplete.js" type="text/javascript"></script>
+
+To activate the plugin call `smartAutoComplete` method with options on target jQuery object. 
+
+    <script type="text/javascript">
+    $(function(){
+
+     $(target).smartAutoComplete({options})
+
+    });
+    </script>
+
+## Options
+
+### minCharLimit (integer)
+
+*default*: 1
+Sets the minimum characters user have to type before invoking the autocomplete 
+
+### maxResults (integer)
+
+*default*: null (means unlimited)
+Sets the maximum number of results to return.
+
+### delay (integer)
+
+*default*: 0
+Sets delay before calling filter function. 
+
+### disabled (boolean)
+
+*default*: false
+Sets whether autocomplete is disabled on the field.
+
+### forceSelect (boolean)
+
+*default*: false
+If set to true, field will be always filled with best matching result, without leaving the custom input.
+(Enable this if you want autocomplete field to behave similar to a select field) 
+
+### source  (string/function)
+
+You can supply an array with items or a string containing a URL to fetch items.
+Note: This field is optional if you prefer to have your own filter method 
+
+### filter (function)
+
+*parameters available*: term, source 
+Define a custom function that would return the matching items for the term (this will override the default filtering algorithm)
+Function should return an array or a Deferred object (ajax call)
+
+### resultFormatter (function) 
+
+*parameters available*: result 
+The function you supply here will be called to format the output of an individual result.
+Function should return a string
+
+### resultsContainer (selector) 
+
+Define to which element(s) the results should be appended.
+
+### resultElement (selector) 
+
+Reference to the result elements collection (e.g. li, div.result) 
+
+## Events
+
+### keyIn
+
+*parameters*: query 
+Fires when user type something in the field 
+
+### resultsReady
+
+*parameters*: results
+Fires when results are ready (returned from the filter function) 
+
+### showResults
+
+*parameters*: results
+Fires after results are added to the results container 
+
+### noMatch
+
+Fires if filter function returned no results
+
+### hideResults
+
+Fires when results are to be hidden (e.g. field looses focus or after a value is selected)
+
+### itemSelect
+
+*paramters*: item
+Fires when user selects an item from the result list 
+
+### itemOver
+
+*paramters*: item
+Fires when user focuses on an item in results list with mouse or arrow keys
+
+### itemOut
+
+*paramters*: item
+Fires when an item in results list looses focus
+
+## Examples 
+
+Copyright (c) 2011 Lakshan Perera (laktek.com)
+Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) licenses.
 
 

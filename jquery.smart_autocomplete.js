@@ -2,40 +2,42 @@
  * Smart Auto Complete plugin 
  * 
  * Copyright (c) 2011 Lakshan Perera (laktek.com)
- * Licensed under the MIT (MIT-LICENSE.txt)  licenses.
+ * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)  licenses.
  * 
 */
 
 /*
- $(target).smartAutoComplete({options})
-  options:
+ Requirements: jQuery 1.5 or above
+
+  Usage:
+  $(target).smartAutoComplete({options})
+
+  Options:
   minCharLimit: (integer) minimum characters user have to type before invoking the autocomplete (default: 1)
-  maxResults: (integer) maximum number of results to return (default: null (unlimited)) - works only with the default filter
-  delay: (integer) delay before autocomplete starts (default: 300ms)
+  maxResults: (integer) maximum number of results to return (default: null (unlimited))
+  delay: (integer) delay before autocomplete starts (default: 0)
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
-  forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default false)
-  source:  (array/function) you can supply an array or callback function that would return an array for the source
+  forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default: false)
+  source:  (string/function) you can supply an array with items or a string containing a URL to fetch items for the source
            this is optional if you prefer to have your own filter method 
-           eg: ["Apple", "Banana", "Mango"] or [["Apple", 1], ["Banana", 2], ["Mango", 3]]
-           or [["Apple", 1, {picture: 'apple.jpg'}], ["Banana", 2, {picture: 'banana.jpg'}], ["Mango", 3, {picture: 'mango.jpg'}]]
-  filter: (function) define a function on that would return matching items to the query (use this if you want to override the default filtering algorithm)
-          expects to return an array 
-          arguments: query, list
-  resultFormatter: (function) the function you supply here will be called to format the output of the individual result.
-                   expects to return a string
-                   arguments: result 
-  resultsContainer: (selector) to which elements the result should be appended.
+  filter: (function) define a custom function that would return matching items to the entered text (this will override the default filtering algorithm)
+          should return an array or a Deferred object (ajax call)
+          parameters available: term, source 
+  resultFormatter: (function) the function you supply here will be called to format the output of an individual result.
+                   should return a string
+                   parameters available: result 
+  resultsContainer: (selector) to which element(s) the result should be appended.
   resultElement: (selector) references to the result elements collection (e.g. li, div.result) 
 
-  events:
-  keyIn: fires when user types into the field
-  resultsReady: fires when the filter function returns
-  showResults: fires when results are shown 
+  Events:
+  keyIn: fires when user types into the field (parameters: query)
+  resultsReady: fires when the filter function returns (parameters: results)
+  showResults: fires when results are shown (parameters: results)
   hideResults: fires when results are hidden
   noMatch: fires when filter returns an empty array to append to the view
-  itemSelect: fires when user selects an item from the result list
-  itemOver: fires when user highlights an item with mouse or arrow keys
-  itemOut: fires when user moves out from an highlighted item
+  itemSelect: fires when user selects an item from the result list (paramters: item)
+  itemOver: fires when user highlights an item with mouse or arrow keys (paramters: item)
+  itemOut: fires when user moves out from an highlighted item (paramters: item)
 
  })
 */
@@ -204,7 +206,7 @@
         var results_container = $(options.resultsContainer);
 
         //event specific data
-        var raw_results = ev.customData.raw_results; 
+        var raw_results = ev.customData.results; 
 
         //show the results container after aligning it with the field 
         if(options.alignResultsContainer){
@@ -428,7 +430,7 @@
       $(this).bind({
         keyIn: function(ev, query){ ev.customData  = {'query': query } ; },
         resultsReady: function(ev, results){ ev.customData  = {'results': results }; }, 
-        showResults: function(ev, raw_results){ ev.customData = {'raw_results': raw_results } },
+        showResults: function(ev, results){ ev.customData = {'results': results } },
         noMatch: function(){},
         hideResults: function(){},
         itemSelect: function(ev, item){ ev.customData = {'item': item }; },
