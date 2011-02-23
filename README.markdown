@@ -25,27 +25,32 @@ To activate the plugin call `smartAutoComplete` method with options on target jQ
 
 ### minCharLimit (integer)
 
-*default*: 1
+**default**: 1
+
 Sets the minimum characters user have to type before invoking the autocomplete 
 
 ### maxResults (integer)
 
-*default*: null (means unlimited)
+**default**: null (means unlimited)
+
 Sets the maximum number of results to return.
 
 ### delay (integer)
 
-*default*: 0
+**default**: 0
+
 Sets delay before calling filter function. 
 
 ### disabled (boolean)
 
-*default*: false
+**default**: false
+
 Sets whether autocomplete is disabled on the field.
 
 ### forceSelect (boolean)
 
-*default*: false
+**default**: false
+
 If set to true, field will be always filled with best matching result, without leaving the custom input.
 (Enable this if you want autocomplete field to behave similar to a select field) 
 
@@ -56,13 +61,15 @@ Note: Your can omit this option or provide a different object, if you are defini
 
 ### filter (function)
 
-*parameters available*: term, source 
+**parameters available**: term, source 
+
 Define a custom function that would return the matching items for the term (this will override the default filtering algorithm)
 Function should return an array or a Deferred object (ajax call)
 
 ### resultFormatter (function) 
 
-*parameters available*: result 
+**parameters available**: result 
+
 The function you supply here will be called to format the output of an individual result.
 Function should return a string
 
@@ -78,17 +85,20 @@ Reference to the result elements collection (e.g. li, div.result)
 
 ### keyIn
 
-*parameters*: query 
+**parameters**: query 
+
 Fires when user type something in the field 
 
 ### resultsReady
 
-*parameters*: results
+**parameters**: results
+
 Fires when results are ready (returned from the filter function) 
 
 ### showResults
 
-*parameters*: results
+**parameters**: results
+
 Fires after results are added to the results container 
 
 ### noMatch
@@ -101,17 +111,20 @@ Fires when results are to be hidden (e.g. field looses focus or after a value is
 
 ### itemSelect
 
-*paramters*: item
+**paramters**: item
+
 Fires when user selects an item from the result list 
 
 ### itemOver
 
-*paramters*: item
+**paramters**: item
+
 Fires when user focuses on an item in results list with mouse or arrow keys
 
 ### itemOut
 
-*paramters*: item
+**paramters**: item
+
 Fires when an item in results list looses focus
 
 ## Learn More
