@@ -54,9 +54,10 @@
 
     div#header {margin-bottom: 20px;}
     div#container {margin: 0 auto; width: 740px;}
-    input.phat_input { font-size: 150%; padding: 5px 10px; width: 500px; }
+    div#container form {margin: 0 auto; width: 700px;}
+    input.phat_input { font-size: 150%; padding: 5px 10px; width: 700px }
 
-    div#results {margin: 20px 0;}
+    div#results {margin: 20px auto; width: 700px;}
     div.result {border-bottom: 1px solid #E9E9E9; margin-bottom: 10px; padding-bottom: 5px;}
     div.result h3 {margin:0 0 5px 0; padding: 0}
     div.result p {margin:0; padding: 0}
@@ -74,13 +75,11 @@
       <div id="header"><h2>GitHub Instant</h2></div>
 
       <div id="container">
-        <div id="content">
-          <form>
-            <input class="phat_input" texttype="text" autocomplete="off" id="search_field" placeholder="Type here to start searching"/>
-          </form>
-          <div id="results">
+        <form>
+          <input class="phat_input" texttype="text" autocomplete="off" id="search_field" placeholder="Type here to start searching"/>
+        </form>
+        <div id="results">
 
-          </div>
         </div>
       </div>
     </div>
