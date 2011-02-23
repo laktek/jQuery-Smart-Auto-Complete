@@ -18,7 +18,7 @@
   delay: (integer) delay before autocomplete starts (default: 0)
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
   forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default: false)
-  source:  (string/function) you can supply an array with items or a string containing a URL to fetch items for the source
+  source:  (string/array) you can supply an array with items or a string containing a URL to fetch items for the source
            this is optional if you prefer to have your own filter method 
   filter: (function) define a custom function that would return matching items to the entered text (this will override the default filtering algorithm)
           should return an array or a Deferred object (ajax call)
@@ -85,12 +85,16 @@
                               else if($.type(source) === "string"){
                                 // treat the string as a URL endpoint
                                 // pass the query as 'term'
-
-                                return $.ajax({
-                                  url: source,
-                                  data: {"term": term},
-                                  dataType: "json"
-                                });
+                                
+                                return $.Deferred(function(dfd){ 
+                                  $.ajax({
+                                    url: source,
+                                    data: {"term": term},
+                                    dataType: "json"
+                                  }).success( function(data){
+                                    dfd.resolve( default_filter_matcher(term, data, context) );          
+                                  }); 
+                                }).promise();
                                 
                               }
 
@@ -321,12 +325,8 @@
       //if a result container is not defined
       if(!options.resultsContainer){
         //define the default result container if it is already not defined
-        if($("._smart_autocomplete_container").length < 1){
-          var default_container = $("<ul class='_smart_autocomplete_container' style='display:none'></ul>");
-          default_container.appendTo("body");
-        }
-        else
-          var default_container = $("._smart_autocomplete_container");
+        var default_container = $("<ul class='_smart_autocomplete_container' style='display:none'></ul>");
+        default_container.appendTo("body");
 
         options.resultsContainer = default_container;
         options.alignResultsContainer = true;
@@ -352,7 +352,7 @@
 
           options['currentSelection'] = current_selection;
 
-          $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
+          $(options.context).trigger('itemOver', [ result_suggestions[current_selection] ] );
         }
 
         //down arrow
@@ -368,7 +368,7 @@
 
           options['currentSelection'] = current_selection;
 
-          $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
+          $(options.context).trigger('itemOver', [ result_suggestions[current_selection] ] );
           
         }
 
@@ -377,14 +377,14 @@
           var current_selection = options.currentSelection;
           var result_suggestions = $(options.resultsContainer).children();
 
-          $(this).trigger('itemSelect', [ result_suggestions[current_selection] ] );
+          $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
           return false;
         }
 
         else {
          //check minimum number of characters are typed
-         if($(this).val().length >= options.minCharLimit){
-          $(this).trigger('keyIn', [$(this).val()]); 
+         if($(options.context).val().length >= options.minCharLimit){
+          $(options.context).trigger('keyIn', [$(this).val()]); 
          }
         }
       });
@@ -428,7 +428,7 @@
 
       //bind plugin specific events
       $(this).bind({
-        keyIn: function(ev, query){ ev.customData  = {'query': query } ; },
+        keyIn: function(ev, query){ ev.customData  = {'query': query }; },
         resultsReady: function(ev, results){ ev.customData  = {'results': results }; }, 
         showResults: function(ev, results){ ev.customData = {'results': results } },
         noMatch: function(){},

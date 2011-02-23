@@ -4,15 +4,18 @@
   <title>Smart AutoComplete Samples</title>
   <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
 
-  <link media="screen" type="text/css" href="stylesheets/application.css" rel="stylesheet">
-  <link media="screen" type="text/css" href="stylesheets/smooth_theme.css" rel="stylesheet">
-
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
   <script type="text/javascript" src="../jquery.smart_autocomplete.js"></script>
 
   <script type="text/javascript">
     $(function(){
+        //example 1
         $("#basic_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], forceSelect: true, minCharLimit: 0, delay: 200});
+
+        //example 2
+        $("#country_field").smartAutoComplete({source: "countries.json"});
+
+        //example 3
         $("#textarea_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango']});
         $("#textarea_autocomplete_field").bind({
            keyIn: function(ev){
@@ -43,12 +46,46 @@
            noMatch: function(ev){ ev.preventDefault(); }
         });
 
-        $("#countries_field").smartAutoComplete({source: "countries.json"});
 
     });
   </script>
 
   <style>
+    /* General styles */
+    body { margin: 0; padding: 0; font: 80%/1.5 Arial,Helvetica,sans-serif; color: #111; background-color: #FFF; }
+    h2 { margin: 0px; padding: 10px; font-family: Georgia, "Times New Roman", Times, serif; font-size: 200%; font-weight: normal; color: #FFF; background-color: #CCC; border-bottom: #BBB 2px solid; }
+    p#copyright { margin: 20px 10px; font-size: 90%; color: #999; }
+
+    /* Form styles - adopted from http://vesess.com/sandbox/form_template.html */
+    div.form-container { margin: 10px; padding: 5px; background-color: #FFF; border: #EEE 1px solid; }
+
+    p.legend { margin-bottom: 1em; }
+    p.legend em { color: #C00; font-style: normal; }
+
+    div.code_block { margin: 0 0 10px 0; padding: 5px 10px; border: #FC6 1px solid; background-color: #FFC; }
+    div.code_block p { margin: 0; }
+    div.code_block p em { color: #C00; font-style: normal; font-weight: bold; }
+
+    div.form-container form p { margin: 0; }
+    div.form-container form p.note { margin-left: 170px; font-size: 90%; color: #333; }
+    div.form-container form fieldset { margin: 10px 0; padding: 10px; border: #DDD 1px solid; }
+    div.form-container form legend { font-weight: bold; color: #666; }
+    div.form-container form fieldset div { padding: 0.25em 0; }
+    div.form-container label, 
+    div.form-container span.label { margin-right: 10px; padding-right: 10px; width: 150px; display: block; float: left; text-align: right; position: relative; }
+    div.form-container label.error, 
+    div.form-container span.error { color: #C00; }
+    div.form-container label em, 
+    div.form-container span.label em { position: absolute; right: 0; font-size: 120%; font-style: normal; color: #C00; }
+    div.form-container input.error { border-color: #C00; background-color: #FEF; }
+    div.form-container input:focus,
+    div.form-container input.error:focus, 
+    div.form-container textarea:focus {	background-color: #FFC; border-color: #FC6; }
+    div.form-container div.controlset label, 
+    div.form-container div.controlset input { display: inline; float: none; }
+    div.form-container div.controlset div { margin-left: 170px; }
+    div.form-container div.buttonrow { margin-left: 180px; }
+
     ul li {list-style: none; cursor: pointer;}
     li.highlight {background-color: #c0c0c0;}
     ul { margin: 10px 0; padding: 5px; background-color: #aeaeae; }
@@ -58,20 +95,43 @@
 </head>
 
 <body>
-   <div id="container">
-      <div id="header"><h1>Smart AutoComplete Samples</h1></div>
       <div id="wrapper">
-        <div id="content">
-          <form>
-            <input type="text" autocomplete="off" id="basic_autocomplete_field"/>
-            <textarea  autocomplete="off" id="textarea_autocomplete_field"></textarea>
+        <h2>Smart AutoComplete Samples</h2>
 
-            <div>
-              <input type="text" autocomplete="off" id="countries_field"/>
-            </div>
+        <div class="form-container">
+          <form>
+            <fieldset>
+              <legend>Example 1</legend>
+
+              <p>Most basic configuration, with source provided as an Array</p>
+              <div>
+                <label for="basic_autocomplete_field">Favorite Fruit</label>
+                <input type="text" autocomplete="off" id="basic_autocomplete_field"/>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Example 2</legend>
+
+              <p>Similar configuration to example 1, but with a URL as the source</p>
+              <div>
+                <label for="country_field">Country</label>
+                <input type="text" autocomplete="off" id="country_field"/>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Example 3</legend>
+
+              <p>Comma-seperated list of values, with auto-compeltion.</p>
+              <div>
+                <label for="textarea_autocomplete_field">Favorite Fruits</label>
+                <textarea  autocomplete="off" id="textarea_autocomplete_field"></textarea>
+              </div>
+            </fieldset>
           </form>
         </div>
+
       </div>
-    </div>
 </body>
 </html>

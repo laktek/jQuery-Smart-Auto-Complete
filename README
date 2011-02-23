@@ -49,10 +49,10 @@ Sets whether autocomplete is disabled on the field.
 If set to true, field will be always filled with best matching result, without leaving the custom input.
 (Enable this if you want autocomplete field to behave similar to a select field) 
 
-### source  (string/function)
+### source  (string/array)
 
-You can supply an array with items or a string containing a URL to fetch items.
-Note: This field is optional if you prefer to have your own filter method 
+Defines the list of items to be filtered. You can give a hardcoded array or a string containing a URL, which will return a JSON array, as the source.
+Note: Your can omit this option or provide a different object, if you are defining your own filter method 
 
 ### filter (function)
 
@@ -114,7 +114,9 @@ Fires when user focuses on an item in results list with mouse or arrow keys
 *paramters*: item
 Fires when an item in results list looses focus
 
-## Examples 
+## Learn More
+
+## Demo 
 
 Copyright (c) 2011 Lakshan Perera (laktek.com)
 Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) licenses.
