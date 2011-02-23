@@ -21,7 +21,7 @@
            }).promise(); 
           },
           resultsContainer: "div#results",
-          resultFormatter: function(r){ return "<h3><a href='" + r.url + "'>" + r.name + "</a> (" + r.language + ")</h3><p>" + r.description + "</p><div class='details'><span>Owner: " + r.owner + "</span> | <span>Forks: " + r.forks + "</span> | <span>Watchers: " + r.watchers + "</span></div>" },
+          resultFormatter: function(r){ return "<div class='result'><h3><a href='" + r.url + "'>" + r.name + "</a> (" + r.language + ")</h3><p>" + r.description + "</p><div class='details'><span>Owner: " + r.owner + "</span> | <span>Forks: " + r.forks + "</span> | <span>Watchers: " + r.watchers + "</span></div></div>" },
           minCharLimit: 0, delay: 200});
 
         $("#search_field").bind({
@@ -32,7 +32,13 @@
             $("div#results").html("Loading...");
           },
 
+          noResults: function(ev){
+            $("div#results").html("Sorry! No results found");
+            ev.preventDefault();
+          },
+
           //we don't need the default behaviour of following events
+          showResults: function(ev) {ev.preventDefault(); },
           itemSelect: function(ev){ ev.preventDefault(); },
           itemOver: function(ev){ ev.preventDefault(); },
           itemOut: function(ev){ ev.preventDefault(); }
@@ -42,21 +48,35 @@
   </script>
 
   <style>
+    /* General styles */
+    body { margin: 0; padding: 0; font: 80%/1.5 Arial,Helvetica,sans-serif; color: #111; background-color: #FFF; }
+    h2 { margin: 0px; padding: 10px; font-family: Georgia, "Times New Roman", Times, serif; font-size: 200%; font-weight: normal; color: #FFF; background-color: #CCC; border-bottom: #BBB 2px solid; }
+
+    div#header {margin-bottom: 20px;}
+    div#container {margin: 0 auto; width: 740px;}
+    input.phat_input { font-size: 150%; padding: 5px 10px; width: 500px; }
+
+    div#results {margin: 20px 0;}
+    div.result {border-bottom: 1px solid #E9E9E9; margin-bottom: 10px; padding-bottom: 5px;}
+    div.result h3 {margin:0 0 5px 0; padding: 0}
+    div.result p {margin:0; padding: 0}
+
     ul li {list-style: none; cursor: pointer;}
-    li.highlight {background-color: #c0c0c0;}
-    ul { margin: 10px 0; padding: 5px; background-color: #aeaeae; }
+    li.highlight {background-color: #C1CE84;}
+    ul { margin: 10px 0; padding: 5px; background-color: #E3EBBC; }
 
   </style>
 
 </head>
 
 <body>
-   <div id="container">
-      <div id="header"><h1>GitHub Instant</h1></div>
-      <div id="wrapper">
+   <div id="wrapper">
+      <div id="header"><h2>GitHub Instant</h2></div>
+
+      <div id="container">
         <div id="content">
           <form>
-            <input type="text" autocomplete="off" id="search_field" placeholder="Type here to start searching"/>
+            <input class="phat_input" texttype="text" autocomplete="off" id="search_field" placeholder="Type here to start searching"/>
           </form>
           <div id="results">
 
