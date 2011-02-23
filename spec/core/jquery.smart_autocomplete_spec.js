@@ -132,8 +132,9 @@ describe('Smart AutoComplete', function () {
 
       it("should set the item selected property to false", function(){
         $("#autoCompleteField").smartAutoComplete({});
+        spyOn(window, 'setTimeout').andReturn(true);
 
-        $("#autoCompleteField").trigger('keyIn', ["t"]);
+        $("#autoCompleteField").trigger('keyIn', "t");
         expect($("#autoCompleteField").smartAutoComplete().itemSelected).toBeFalsy();
       });
 

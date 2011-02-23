@@ -119,7 +119,6 @@
 
                             setItemSelected: function(val){
                               this.itemSelected = val;
-                              $(this.context).data("smart-autocomplete", this);
                             }
 
     };
@@ -142,9 +141,6 @@
 
         //set item selected property
         options.setItemSelected(false);
-
-        //save options
-        $(context).data("smart-autocomplete", options);
 
         //call the filter function with delay
         setTimeout(function(){
@@ -177,7 +173,6 @@
 
         //save the raw results
         options.rawResults = results;
-        $(context).data("smart-autocomplete", options);
 
         //fire the no match event and exit if no matching results
         if(results.length < 1){
@@ -335,7 +330,6 @@
         options.alignResultsContainer = true;
       }
 
-      // save the values in data object
       $(this).data("smart-autocomplete", options);
 
       // bind user events
@@ -357,9 +351,6 @@
           options['currentSelection'] = current_selection;
 
           $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
-          
-          //save the options
-          $(this).data("smart-autocomplete", options); 
         }
 
         //down arrow
@@ -377,9 +368,6 @@
 
           $(this).trigger('itemOver', [ result_suggestions[current_selection] ] );
           
-          //save the options
-          $(this).data("smart-autocomplete", options); 
-
         }
 
         //right arrow & enter key
@@ -425,9 +413,6 @@
 
         $(options.context).trigger('itemOver', [this] );
           
-        //save the options
-        $(this).data("smart-autocomplete", options); 
-
       });
 
       $(options.resultsContainer).delegate(options.resultElement, 'mouseleave.smart_autocomplete', function(){
