@@ -9,7 +9,7 @@
 /*
  $(target).smartAutoComplete({options})
   options:
-  minCharLimit: (integer) minimum characters user have to type before invoking the autocomplete (default: 2)
+  minCharLimit: (integer) minimum characters user have to type before invoking the autocomplete (default: 1)
   maxResults: (integer) maximum number of results to return (default: null (unlimited)) - works only with the default filter
   delay: (integer) delay before autocomplete starts (default: 300ms)
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
@@ -29,7 +29,7 @@
 
   events:
   keyIn: fires when user types into the field
-  filterReady: fires when the filter function returns
+  resultsReady: fires when the filter function returns
   showResults: fires when results are shown 
   hideResults: fires when results are hidden
   noMatch: fires when filter returns an empty array to append to the view
@@ -59,7 +59,7 @@
                                  }
 
     var default_options = {
-                            minCharLimit: 2, 
+                            minCharLimit: 1, 
                             maxResults: null,
                             delay: 0,
                             disabled: false,
@@ -115,6 +115,11 @@
                             setCurrentSelectionToContext: function(){
                                 if(this.rawResults.length > 0)
                                   $(this.context).val(this.rawResults[(this.currentSelection || 0)]);
+                            },
+
+                            setItemSelected: function(val){
+                              this.itemSelected = val;
+                              $(this.context).data("smart-autocomplete", this);
                             }
 
     };
@@ -135,19 +140,25 @@
         if(options.disabled)
           return false;
 
+        //set item selected property
+        options.setItemSelected(false);
+
+        //save options
+        $(context).data("smart-autocomplete", options);
+
         //call the filter function with delay
         setTimeout(function(){
           $.when( filter.apply(options, [query, options.source]) ).done(function( results ){
             //do the trimming
             var trimmed_results = (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
 
-            $(context).trigger('filterReady', [trimmed_results]);
+            $(context).trigger('resultsReady', [trimmed_results]);
           });
         }, options.delay);
       }
     };
 
-    $.event.special.filterReady = {
+    $.event.special.resultsReady = {
       setup: function(){ return false },
 
       _default: function(ev){
@@ -160,6 +171,9 @@
         //exit if smart complete is disabled
         if(options.disabled)
           return false;
+
+        //clear all previous results 
+        $(context).smartAutoComplete().clearResults();
 
         //save the raw results
         options.rawResults = results;
@@ -177,9 +191,6 @@
         });
 
         var formatted_results_html = formatted_results.join("");
-
-        //clear all previous results 
-        $(context).smartAutoComplete().clearResults();
 
         //append the results to the container
         $(options.resultsContainer).append(formatted_results_html);
@@ -224,8 +235,8 @@
         var context = ev.target;
         var options = $(context).data("smart-autocomplete");
 
-        //if force select is selected, set the current value
-        if(options.forceSelect)
+        //if force select is selected and no item is selected, set currently highlighted value
+        if(options.forceSelect && !options.itemSelected)
           options.setCurrentSelectionToContext();
 
         //hide the results container
@@ -270,9 +281,9 @@
         //set it as the value of the autocomplete field
         $(context).val(selected_value); 
 
-        //clear raw results hash
-        options.rawResults = [];
-
+        //set item selected property
+        options.setItemSelected(true);
+        
         //hide results container
         $(context).trigger('hideResults');
       }
@@ -431,7 +442,7 @@
       //bind plugin specific events
       $(this).bind({
         keyIn: function(ev, query){ ev.customData  = {'query': query } ; },
-        filterReady: function(ev, results){ ev.customData  = {'results': results }; }, 
+        resultsReady: function(ev, results){ ev.customData  = {'results': results }; }, 
         showResults: function(ev, raw_results){ ev.customData = {'raw_results': raw_results } },
         noMatch: function(){},
         hideResults: function(){},

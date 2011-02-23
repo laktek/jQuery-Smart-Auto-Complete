@@ -12,8 +12,286 @@
 
   <script type="text/javascript">
     $(function(){
+    var country_list = [{"US":"United States"},
+                        {"CA":"Canada"},
+                        {"AF":"Afghanistan"},
+                        {"AL":"Albania"},
+                        {"DZ":"Algeria"},
+                        {"DS":"American Samoa"},
+                        {"AD":"Andorra"},
+                        {"AO":"Angola"},
+                        {"AI":"Anguilla"},
+                        {"AQ":"Antarctica"},
+                        {"AG":"Antigua and/or Barbuda"},
+                        {"AR":"Argentina"},
+                        {"AM":"Armenia"},
+                        {"AW":"Aruba"},
+                        {"AU":"Australia"},
+                        {"AT":"Austria"},
+                        {"AZ":"Azerbaijan"},
+                        {"BS":"Bahamas"},
+                        {"BH":"Bahrain"},
+                        {"BD":"Bangladesh"},
+                        {"BB":"Barbados"},
+                        {"BY":"Belarus"},
+                        {"BE":"Belgium"},
+                        {"BZ":"Belize"},
+                        {"BJ":"Benin"},
+                        {"BM":"Bermuda"},
+                        {"BT":"Bhutan"},
+                        {"BO":"Bolivia"},
+                        {"BA":"Bosnia and Herzegovina"},
+                        {"BW":"Botswana"},
+                        {"BV":"Bouvet Island"},
+                        {"BR":"Brazil"},
+                        {"IO":"British lndian Ocean Territory"},
+                        {"BN":"Brunei Darussalam"},
+                        {"BG":"Bulgaria"},
+                        {"BF":"Burkina Faso"},
+                        {"BI":"Burundi"},
+                        {"KH":"Cambodia"},
+                        {"CM":"Cameroon"},
+                        {"CV":"Cape Verde"},
+                        {"KY":"Cayman Islands"},
+                        {"CF":"Central African Republic"},
+                        {"TD":"Chad"},
+                        {"CL":"Chile"},
+                        {"CN":"China"},
+                        {"CX":"Christmas Island"},
+                        {"CC":"Cocos (Keeling) Islands"},
+                        {"CO":"Colombia"},
+                        {"KM":"Comoros"},
+                        {"CG":"Congo"},
+                        {"CK":"Cook Islands"},
+                        {"CR":"Costa Rica"},
+                        {"HR":"Croatia (Hrvatska)"},
+                        {"CU":"Cuba"},
+                        {"CY":"Cyprus"},
+                        {"CZ":"Czech Republic"},
+                        {"DK":"Denmark"},
+                        {"DJ":"Djibouti"},
+                        {"DM":"Dominica"},
+                        {"DO":"Dominican Republic"},
+                        {"TP":"East Timor"},
+                        {"EC":"Ecudaor"},
+                        {"EG":"Egypt"},
+                        {"SV":"El Salvador"},
+                        {"GQ":"Equatorial Guinea"},
+                        {"ER":"Eritrea"},
+                        {"EE":"Estonia"},
+                        {"ET":"Ethiopia"},
+                        {"FK":"Falkland Islands (Malvinas)"},
+                        {"FO":"Faroe Islands"},
+                        {"FJ":"Fiji"},
+                        {"FI":"Finland"},
+                        {"FR":"France"},
+                        {"FX":"France, Metropolitan"},
+                        {"GF":"French Guiana"},
+                        {"PF":"French Polynesia"},
+                        {"TF":"French Southern Territories"},
+                        {"GA":"Gabon"},
+                        {"GM":"Gambia"},
+                        {"GE":"Georgia"},
+                        {"DE":"Germany"},
+                        {"GH":"Ghana"},
+                        {"GI":"Gibraltar"},
+                        {"GR":"Greece"},
+                        {"GL":"Greenland"},
+                        {"GD":"Grenada"},
+                        {"GP":"Guadeloupe"},
+                        {"GU":"Guam"},
+                        {"GT":"Guatemala"},
+                        {"GN":"Guinea"},
+                        {"GW":"Guinea-Bissau"},
+                        {"GY":"Guyana"},
+                        {"HT":"Haiti"},
+                        {"HM":"Heard and Mc Donald Islands"},
+                        {"HN":"Honduras"},
+                        {"HK":"Hong Kong"},
+                        {"HU":"Hungary"},
+                        {"IS":"Iceland"},
+                        {"IN":"India"},
+                        {"ID":"Indonesia"},
+                        {"IR":"Iran (Islamic Republic of)"},
+                        {"IQ":"Iraq"},
+                        {"IE":"Ireland"},
+                        {"IL":"Israel"},
+                        {"IT":"Italy"},
+                        {"CI":"Ivory Coast"},
+                        {"JM":"Jamaica"},
+                        {"JP":"Japan"},
+                        {"JO":"Jordan"},
+                        {"KZ":"Kazakhstan"},
+                        {"KE":"Kenya"},
+                        {"KI":"Kiribati"},
+                        {"KP":"Korea, Democratic People's Republic of"},
+                        {"KR":"Korea, Republic of"},
+                        {"KW":"Kuwait"},
+                        {"KG":"Kyrgyzstan"},
+                        {"LA":"Lao People's Democratic Republic"},
+                        {"LV":"Latvia"},
+                        {"LB":"Lebanon"},
+                        {"LS":"Lesotho"},
+                        {"LR":"Liberia"},
+                        {"LY":"Libyan Arab Jamahiriya"},
+                        {"LI":"Liechtenstein"},
+                        {"LT":"Lithuania"},
+                        {"LU":"Luxembourg"},
+                        {"MO":"Macau"},
+                        {"MK":"Macedonia"},
+                        {"MG":"Madagascar"},
+                        {"MW":"Malawi"},
+                        {"MY":"Malaysia"},
+                        {"MV":"Maldives"},
+                        {"ML":"Mali"},
+                        {"MT":"Malta"},
+                        {"MH":"Marshall Islands"},
+                        {"MQ":"Martinique"},
+                        {"MR":"Mauritania"},
+                        {"MU":"Mauritius"},
+                        {"TY":"Mayotte"},
+                        {"MX":"Mexico"},
+                        {"FM":"Micronesia, Federated States of"},
+                        {"MD":"Moldova, Republic of"},
+                        {"MC":"Monaco"},
+                        {"MN":"Mongolia"},
+                        {"MS":"Montserrat"},
+                        {"MA":"Morocco"},
+                        {"MZ":"Mozambique"},
+                        {"MM":"Myanmar"},
+                        {"NA":"Namibia"},
+                        {"NR":"Nauru"},
+                        {"NP":"Nepal"},
+                        {"NL":"Netherlands"},
+                        {"AN":"Netherlands Antilles"},
+                        {"NC":"New Caledonia"},
+                        {"NZ":"New Zealand"},
+                        {"NI":"Nicaragua"},
+                        {"NE":"Niger"},
+                        {"NG":"Nigeria"},
+                        {"NU":"Niue"},
+                        {"NF":"Norfork Island"},
+                        {"MP":"Northern Mariana Islands"},
+                        {"NO":"Norway"},
+                        {"OM":"Oman"},
+                        {"PK":"Pakistan"},
+                        {"PW":"Palau"},
+                        {"PA":"Panama"},
+                        {"PG":"Papua New Guinea"},
+                        {"PY":"Paraguay"},
+                        {"PE":"Peru"},
+                        {"PH":"Philippines"},
+                        {"PN":"Pitcairn"},
+                        {"PL":"Poland"},
+                        {"PT":"Portugal"},
+                        {"PR":"Puerto Rico"},
+                        {"QA":"Qatar"},
+                        {"RE":"Reunion"},
+                        {"RO":"Romania"},
+                        {"RU":"Russian Federation"},
+                        {"RW":"Rwanda"},
+                        {"KN":"Saint Kitts and Nevis"},
+                        {"LC":"Saint Lucia"},
+                        {"VC":"Saint Vincent and the Grenadines"},
+                        {"WS":"Samoa"},
+                        {"SM":"San Marino"},
+                        {"ST":"Sao Tome and Principe"},
+                        {"SA":"Saudi Arabia"},
+                        {"SN":"Senegal"},
+                        {"SC":"Seychelles"},
+                        {"SL":"Sierra Leone"},
+                        {"SG":"Singapore"},
+                        {"SK":"Slovakia"},
+                        {"SI":"Slovenia"},
+                        {"SB":"Solomon Islands"},
+                        {"SO":"Somalia"},
+                        {"ZA":"South Africa"},
+                        {"GS":"South Georgia South Sandwich Islands"},
+                        {"ES":"Spain"},
+                        {"LK":"Sri Lanka"},
+                        {"SH":"St. Helena"},
+                        {"PM":"St. Pierre and Miquelon"},
+                        {"SD":"Sudan"},
+                        {"SR":"Suriname"},
+                        {"SJ":"Svalbarn and Jan Mayen Islands"},
+                        {"SZ":"Swaziland"},
+                        {"SE":"Sweden"},
+                        {"CH":"Switzerland"},
+                        {"SY":"Syrian Arab Republic"},
+                        {"TW":"Taiwan"},
+                        {"TJ":"Tajikistan"},
+                        {"TZ":"Tanzania, United Republic of"},
+                        {"TH":"Thailand"},
+                        {"TG":"Togo"},
+                        {"TK":"Tokelau"},
+                        {"TO":"Tonga"},
+                        {"TT":"Trinidad and Tobago"},
+                        {"TN":"Tunisia"},
+                        {"TR":"Turkey"},
+                        {"TM":"Turkmenistan"},
+                        {"TC":"Turks and Caicos Islands"},
+                        {"TV":"Tuvalu"},
+                        {"UG":"Uganda"},
+                        {"UA":"Ukraine"},
+                        {"AE":"United Arab Emirates"},
+                        {"GB":"United Kingdom"},
+                        {"UM":"United States minor outlying islands"},
+                        {"UY":"Uruguay"},
+                        {"UZ":"Uzbekistan"},
+                        {"VU":"Vanuatu"},
+                        {"VA":"Vatican City State"},
+                        {"VE":"Venezuela"},
+                        {"VN":"Vietnam"},
+                        {"VG":"Virigan Islands (British)"},
+                        {"VI":"Virgin Islands (U.S.)"},
+                        {"WF":"Wallis and Futuna Islands"},
+                        {"EH":"Western Sahara"},
+                        {"YE":"Yemen"},
+                        {"YU":"Yugoslavia"},
+                        {"ZR":"Zaire"},
+                        {"ZM":"Zambia"},
+                        {"ZW":"Zimbabwe"}];
+
+        var country_names = [];
+        $.each(country_list, function(i, o){
+            $.each(o, function(key, value){
+              country_names.push(value);
+            });
+        });
+
         $("#basic_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], forceSelect: true, minCharLimit: 0, delay: 200});
-        $("#textarea_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango']})
+        $("#textarea_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango']});
+        $("#textarea_autocomplete_field").bind({
+           keyIn: function(ev){
+             var tag_list = ev.customData.query.split(","); 
+             //pass the modified query to default event
+             ev.customData.query = $.trim(tag_list[tag_list.length - 1]);
+           },
+
+           itemSelect: function(ev, selected_item){ 
+            var options = $(this).smartAutoComplete();
+
+            //get the text from selected item
+            var selected_value = $(selected_item).text();
+            var cur_list = $(this).val().split(","); 
+            cur_list[cur_list.length - 1] = selected_value;
+            $(this).val(cur_list.join(",") + ","); 
+
+            //set item selected property
+            options.setItemSelected(true);
+
+            //hide results container
+            $(this).trigger('hideResults');
+              
+            //prevent default event handler from executing
+            ev.preventDefault();
+          },
+
+           noMatch: function(ev){ ev.preventDefault(); }
+        });
+
+        $("#countries_field").smartAutoComplete({source: country_names})
+
     });
   </script>
 
@@ -34,6 +312,10 @@
           <form>
             <input type="text" autocomplete="off" id="basic_autocomplete_field"/>
             <textarea  autocomplete="off" id="textarea_autocomplete_field"></textarea>
+
+            <div>
+              <input type="text" autocomplete="off" id="countries_field"/>
+            </div>
           </form>
         </div>
       </div>

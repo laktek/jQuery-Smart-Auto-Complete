@@ -13,8 +13,8 @@ describe('Smart AutoComplete', function () {
         smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
       });
 
-      it('minimum character length should be 2', function () {
-        expect(smart_autocomplete_options.minCharLimit).toEqual(2);
+      it('minimum character length should be 1', function () {
+        expect(smart_autocomplete_options.minCharLimit).toEqual(1);
       });
 
       it('maximum results should be unlimited', function () {
@@ -130,10 +130,17 @@ describe('Smart AutoComplete', function () {
         expect(mock_autocomplete_obj.filter).not.toHaveBeenCalledWith('t', 'test');
       });
 
+      it("should set the item selected property to false", function(){
+        $("#autoCompleteField").smartAutoComplete({});
+
+        $("#autoCompleteField").trigger('keyIn', ["t"]);
+        expect($("#autoCompleteField").smartAutoComplete().itemSelected).toBeFalsy();
+      });
+
       it("waits for the miliseconds set as the delay before running the filter", function(){
         var output_buffer;
         $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test", delay: 10});
-        $("#autoCompleteField").bind('filterReady', function(ev){ ev.preventDefault(); });
+        $("#autoCompleteField").bind('resultsReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(10); //this is deprecated
@@ -145,7 +152,7 @@ describe('Smart AutoComplete', function () {
       it("if custom filter function is defined, call it with query and source", function(){
         var output_buffer;
         $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test"});
-        $("#autoCompleteField").bind('filterReady', function(ev){ ev.preventDefault(); });
+        $("#autoCompleteField").bind('resultsReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(0); //this is deprecated
@@ -155,12 +162,12 @@ describe('Smart AutoComplete', function () {
       });
   
       it("if custom filter function is not defined, call default filter with query and source", function(){
-        var mock_autocomplete_obj = {filter: function(){}, source: 'test', clearResults: function(){} };
+        var mock_autocomplete_obj = {filter: function(){}, source: 'test', clearResults: function(){}, setItemSelected: function(){} };
         spyOn(mock_autocomplete_obj, 'filter').andReturn([]);
 
         $("#autoCompleteField").smartAutoComplete({});
         $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
-        $("#autoCompleteField").bind('filterReady', function(ev){ ev.preventDefault(); });
+        $("#autoCompleteField").bind('resultsReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
         waits(0); //this is deprecated
@@ -171,7 +178,7 @@ describe('Smart AutoComplete', function () {
 
     });
 
-    describe('filterReady event', function(){
+    describe('resultsReady event', function(){
 
       var result_formatter_called = false;
       var result_formatter_function = function(r){ result_formatter_called = true; return r };
@@ -179,7 +186,7 @@ describe('Smart AutoComplete', function () {
       it("persists the raw results", function(){
         $("#autoCompleteField").smartAutoComplete({});
         $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
-        $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
+        $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteField").data("smart-autocomplete").rawResults).toEqual(["a", "b", "c"]);
  
@@ -188,7 +195,7 @@ describe('Smart AutoComplete', function () {
       it("format the results using the result formatter function", function(){
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
         $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
-        $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
+        $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect(result_formatter_called).toBeTruthy();
       });
@@ -197,7 +204,7 @@ describe('Smart AutoComplete', function () {
         setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'><span class='smart_autocomplete_result'>test</span></div>");
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function, resultsContainer: "#autoCompleteAppendToBlock" });
         $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
-        $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
+        $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
       });
@@ -206,14 +213,14 @@ describe('Smart AutoComplete', function () {
         setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'></div>");
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function, resultsContainer: "#autoCompleteAppendToBlock" });
         $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
-        $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
+        $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
       });
 
       it("should create a container and append the results if no result container is given", function(){
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
-        $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
+        $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect($("._smart_autocomplete_container")).toHaveHtml("abc");
 
@@ -224,7 +231,7 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").bind('showResults', function(ev){ event_output = "show results"; ev.preventDefault(); });
 
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
-        $("#autoCompleteField").trigger('filterReady', [["a", "b", "c"]]);
+        $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect(event_output).toEqual("show results");
       });
@@ -234,7 +241,7 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").bind('noMatch', function(ev){ event_output = "no match"; ev.preventDefault(); });
 
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
-        $("#autoCompleteField").trigger('filterReady', [[]]);
+        $("#autoCompleteField").trigger('resultsReady', [[]]);
 
         expect(event_output).toEqual("no match");
       }); 
@@ -291,12 +298,12 @@ describe('Smart AutoComplete', function () {
 
       });
 
-      it("fill in the field with best matching value if force select is enabled and field is not empty", function(){
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'] });
+      it("fill in the field with best matching value if force select is enabled and no item is selected", function(){
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'], itemSelected: false });
         $("#autoCompleteField").trigger('hideResults');
 
         expect($("#autoCompleteField")).toHaveValue('Apple');
-      })
+      });
 
     });
 
@@ -310,12 +317,21 @@ describe('Smart AutoComplete', function () {
         expect($("#autoCompleteField")).toHaveValue('I was selected!');
       });
 
-      it("should not set the text of if the item is no match text", function(){
+      it("should not set the text if the item is no match text", function(){
         setFixtures("<input id='autoCompleteField'/><div class='_smart_autocomplete_no_result'>No Result</div>");
         $("#autoCompleteField").smartAutoComplete({});
 
         $("#autoCompleteField").trigger('itemSelect', [$("div._smart_autocomplete_no_result")]);
         expect($("#autoCompleteField")).not.toHaveValue('No Result');
+      });
+
+      it("should set the item selected property to true", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
+        $("#autoCompleteField").smartAutoComplete({});
+
+        $("#autoCompleteField").trigger('itemSelect', [$("#selectedField")]);
+        expect($("#autoCompleteField").smartAutoComplete().itemSelected).toBeTruthy();
+
       });
 
       it("should trigger the hide results event after a value is selected", function(){
