@@ -239,7 +239,7 @@ describe('Smart AutoComplete', function () {
 
       it("fires the no match event if filter returns empty", function(){
         var event_output = "";
-        $("#autoCompleteField").bind('noMatch', function(ev){ event_output = "no match"; ev.preventDefault(); });
+        $("#autoCompleteField").bind('noResults', function(ev){ event_output = "no match"; ev.preventDefault(); });
 
         $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
         $("#autoCompleteField").trigger('resultsReady', [[]]);
@@ -249,12 +249,12 @@ describe('Smart AutoComplete', function () {
     
     });
 
-    describe('no match event', function(){
+    describe('no results event', function(){
 
       it("should append no results found banner to result container", function(){
         setFixtures("<input id='autoCompleteField'/><ul id='resultsContainer'></ul>");
         $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").trigger('noMatch');
+        $("#autoCompleteField").trigger('noResults');
 
         expect($("#resultsContainer")).toHaveText('Sorry, No Results Found');
 

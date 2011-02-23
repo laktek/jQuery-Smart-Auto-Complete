@@ -34,7 +34,7 @@
   resultsReady: fires when the filter function returns (parameters: results)
   showResults: fires when results are shown (parameters: results)
   hideResults: fires when results are hidden
-  noMatch: fires when filter returns an empty array to append to the view
+  noResults: fires when filter returns an empty array
   itemSelect: fires when user selects an item from the result list (paramters: item)
   itemOver: fires when user highlights an item with mouse or arrow keys (paramters: item)
   itemOut: fires when user moves out from an highlighted item (paramters: item)
@@ -182,7 +182,7 @@
 
         //fire the no match event and exit if no matching results
         if(results.length < 1){
-          $(context).trigger('noMatch');
+          $(context).trigger('noResults');
           return false
         }
 
@@ -245,7 +245,7 @@
       }
     };
 
-    $.event.special.noMatch = {
+    $.event.special.noResults = {
       setup: function(){ return false },
 
       _default: function(ev){    
@@ -431,7 +431,7 @@
         keyIn: function(ev, query){ ev.customData  = {'query': query }; },
         resultsReady: function(ev, results){ ev.customData  = {'results': results }; }, 
         showResults: function(ev, results){ ev.customData = {'results': results } },
-        noMatch: function(){},
+        noResults: function(){},
         hideResults: function(){},
         itemSelect: function(ev, item){ ev.customData = {'item': item }; },
         itemOver: function(ev, item){ ev.customData = {'item': item }; },
