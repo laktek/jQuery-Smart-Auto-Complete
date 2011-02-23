@@ -382,7 +382,7 @@ describe('Smart AutoComplete', function () {
       }); 
 
       it("initates an deferred ajax call when source is given as a string", function(){
-        spyOn($, 'Deferred').andReturn(function(){})
+        spyOn($, 'Deferred').andReturn({promise: function(){} });
 
         $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', 'http://localhost/autocomplete');
         expect($.Deferred).toHaveBeenCalled();
