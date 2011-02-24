@@ -7,7 +7,7 @@ jQuery 1.5 or above
 
 ## Usage
 
-In the header section of your HTML page add two script tags referencing to core jQuery and smart autocomplete plugin. It should look similar to code below:
+In the header section of your page, add two script tags referencing to core jQuery and smart autocomplete plugin. It should look similar to code below:
 
     <script src="jquery.js" type="text/javascript"></script>
     <script src="jquery.smart_autocomplete.js" type="text/javascript"></script>
