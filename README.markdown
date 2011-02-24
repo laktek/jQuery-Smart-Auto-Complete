@@ -1,4 +1,5 @@
-# jQuery Smart Auto Complete plugin 
+jQuery Smart Auto Complete plugin 
+=================================
  
 ## Requirements
 
