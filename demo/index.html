@@ -19,6 +19,9 @@
         $("#type_ahead_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], typeAhead: true });
 
         //example 4
+        $("#type_ahead_only_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], typeAhead: true, maxResults: 1, resultsContainer: false });
+
+        //example 5
         $("#textarea_autocomplete_field").smartAutoComplete({source: "countries.json", maxResults: 5, delay: 200 } );
         $("#textarea_autocomplete_field").bind({
 
@@ -142,8 +145,20 @@
 
             </fieldset>
 
-            <fieldset>
+           <fieldset>
               <legend>Example 4</legend>
+
+              <p>Only shows the best matching suggestion in-field using the <em>typeAhead</em> option and <em>resultsContainer</em> is set to <em>false</em>.</p>
+
+              <div>
+                <label for="type_ahead_only_autocomplete_field">Favorite Fruit</label>
+                <input type="text" autocomplete="off" id="type_ahead_only_autocomplete_field"/>
+            </div>
+          </fieldset>
+
+
+            <fieldset>
+              <legend>Example 5</legend>
 
               <p>This widget implements a Comma-seperated list, with auto-compeltion. To achieve this we have bind handlers to custom events emitted by the plugin.</p>
 
@@ -153,6 +168,8 @@
                 <p class='note'>You can enter mulitple values seperated by comma</p>
               </div>
             </fieldset>
+
+           
 
           </form>
         </div>

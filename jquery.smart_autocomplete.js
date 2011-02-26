@@ -192,7 +192,8 @@
         var formatted_results_html = formatted_results.join("");
 
         //append the results to the container
-        $(options.resultsContainer).append(formatted_results_html);
+        if(options.resultsContainer)
+          $(options.resultsContainer).append(formatted_results_html);
 
         //trigger results ready event
         $(context).trigger('showResults', [results]);
@@ -235,20 +236,23 @@
 
           //trigger item over for first item
           options.currentSelection = 0;
-          $(context).trigger('itemFocus', results_container.children()[options.currentSelection]);
+          if(results_container)
+            $(context).trigger('itemFocus', results_container.children()[options.currentSelection]);
         }
 
         //show the results container after aligning it with the field 
-        if(options.alignResultsContainer){
-          results_container.css({ 
-                position: "absolute",
-                top: function(){ return $(context).offset().top + $(context).height(); }, 
-                left: function(){ return $(context).offset().left; }, 
-                width: function(){ return $(context).width(); }, 
-                zIndex: 1000
-          })
-        }  
-        results_container.show();
+        if(results_container){
+          if(options.alignResultsContainer){
+            results_container.css({ 
+                  position: "absolute",
+                  top: function(){ return $(context).offset().top + $(context).height(); }, 
+                  left: function(){ return $(context).offset().left; }, 
+                  width: function(){ return $(context).width(); }, 
+                  zIndex: 1000
+            })
+          }  
+          results_container.show();
+        }
 
       }
     };
@@ -286,7 +290,7 @@
           return;
 
         //get the text from selected item
-        var selected_value = $(selected_item).text();
+        var selected_value = $(selected_item).text() || $(selected_item).val();
         //set it as the value of the autocomplete field
         $(context).val(selected_value); 
 
@@ -337,7 +341,8 @@
         options.clearResults(); 
 
         //hide the results container
-        $(options.resultsContainer).hide();
+        if(options.resultsContainer)
+          $(options.resultsContainer).hide();
 
         //set current selection to null
         options.currentSelection = null;
@@ -353,7 +358,7 @@
       options['context'] = this;
 
       //if a result container is not defined
-      if(!options.resultsContainer){
+      if($.type(options.resultsContainer) === 'undefined' ){
         //define the default result container if it is already not defined
         var default_container = $("<ul class='smart_autocomplete_container' style='display:none'></ul>");
         default_container.appendTo("body");
@@ -371,43 +376,54 @@
 
         //up arrow
         if(ev.keyCode == '38'){
-          var current_selection = options.currentSelection || 0;
-          var result_suggestions = $(options.resultsContainer).children();
 
-          if(current_selection >= 0)
-            $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
+          if(options.resultsContainer){
+            var current_selection = options.currentSelection || 0;
+            var result_suggestions = $(options.resultsContainer).children();
 
-          if(--current_selection <= 0)
-            current_selection = 0;
+            if(current_selection >= 0)
+              $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
 
-          options['currentSelection'] = current_selection;
+            if(--current_selection <= 0)
+              current_selection = 0;
 
-          $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
+            options['currentSelection'] = current_selection;
+
+            $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
+          }
         }
 
         //down arrow
         else if(ev.keyCode == '40'){
-          var current_selection = options.currentSelection;
-          var result_suggestions = $(options.resultsContainer).children();
 
-          if(current_selection >= 0)
-            $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
+          if(options.resultsContainer){
+            var current_selection = options.currentSelection;
+            var result_suggestions = $(options.resultsContainer).children();
 
-          if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
-            current_selection = 0;
+            if(current_selection >= 0)
+              $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
 
-          options['currentSelection'] = current_selection;
+            if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
+              current_selection = 0;
 
-          $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
+            options['currentSelection'] = current_selection;
+
+            $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
+          }
           
         }
 
         //right arrow & enter key
         else if(ev.keyCode == '39' || ev.keyCode == '13'){
-          var current_selection = options.currentSelection;
-          var result_suggestions = $(options.resultsContainer).children();
+          if(options.resultsContainer){
+            var current_selection = options.currentSelection;
+            var result_suggestions = $(options.resultsContainer).children();
 
-          $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
+            $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
+          }
+          else
+            $(options.context).trigger('itemSelect', [ $(options.context).prev('.smart_autocomplete_type_ahead_field') ] );
+
           return false;
         }
 
