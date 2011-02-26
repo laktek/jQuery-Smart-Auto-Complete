@@ -40,8 +40,8 @@
           //we don't need the default behaviour of following events
           showResults: function(ev) {ev.preventDefault(); },
           itemSelect: function(ev){ ev.preventDefault(); },
-          itemOver: function(ev){ ev.preventDefault(); },
-          itemOut: function(ev){ ev.preventDefault(); }
+          itemFocus: function(ev){ ev.preventDefault(); },
+          itemUnfocus: function(ev){ ev.preventDefault(); }
 
         });
     });
