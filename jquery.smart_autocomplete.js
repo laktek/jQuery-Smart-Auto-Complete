@@ -42,7 +42,7 @@
   itemSelect: fires when user selects an item from the result list (paramters: item)
   itemFocus: fires when user highlights an item with mouse or arrow keys (paramters: item)
   itemUnfocus: fires when user moves out from an highlighted item (paramters: item)
-  lostFocus: fires when autocomplete field loses focus by user clicking outside of the field or focusing on another field. 
+  lostFocus: fires when autocomplete field loses focus by user clicking outside of the field or focusing on another field. Also, this event is fired when a value is selected
 
  })
 */
