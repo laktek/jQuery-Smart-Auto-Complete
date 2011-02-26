@@ -17,7 +17,12 @@
   maxResults: (integer) maximum number of results to return (default: null (unlimited))
   delay: (integer) delay before autocomplete starts (default: 0)
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
-  forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default: false)
+  forceSelect: (boolean) If set to true, field will be always filled with best matching result, without leaving the custom input.
+               Better to enable this option, if you want autocomplete field to behave similar to a HTML select field. (Check Example 2 in the demo)
+               (default: false)
+  typeAhead: (boolean) If set to true, it will offer the best matching result in grey within the field; that can be auto-completed by pressing the right arrow-key or enter.
+             This is similar to behaviour in Google Instant Search's query field (Check Example 3 in the demo) 
+             (default: false)
   source:  (string/array) you can supply an array with items or a string containing a URL to fetch items for the source
            this is optional if you prefer to have your own filter method 
   filter: (function) define a custom function that would return matching items to the entered text (this will override the default filtering algorithm)

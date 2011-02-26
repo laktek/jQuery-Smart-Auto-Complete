@@ -53,7 +53,15 @@ Sets whether autocomplete is disabled on the field.
 **default**: false
 
 If set to true, field will be always filled with best matching result, without leaving the custom input.
-(Enable this if you want autocomplete field to behave similar to a select field) 
+Better to enable this option, if you want autocomplete field to behave similar to a HTML select field. (Check Example 2 in the demo)
+
+### typeAhead (boolean)
+
+**default**: false
+
+If set to true, it will offer the best matching result in grey within the field; that can be auto-completed by pressing the right arrow-key or enter.
+This is similar to behaviour in Google Instant Search's query field (Check Example 3 in the demo) 
+
 
 ### source  (string/array)
 
