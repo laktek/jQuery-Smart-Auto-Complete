@@ -265,7 +265,7 @@
          //clear previous results
          options.clearResults(); 
 
-         result_container.append("<li class='_smart_autocomplete_no_result'>Sorry, No Results Found</li>");
+         result_container.append("<li class='smart_autocomplete_no_result'>Sorry, No Results Found</li>");
         }
 
       }
@@ -282,7 +282,7 @@
         var selected_item = ev.customData.item;
 
         //return if no result item is selected
-        if($(selected_item).hasClass('_smart_autocomplete_no_result'))
+        if($(selected_item).hasClass('smart_autocomplete_no_result'))
           return;
 
         //get the text from selected item
@@ -355,7 +355,7 @@
       //if a result container is not defined
       if(!options.resultsContainer){
         //define the default result container if it is already not defined
-        var default_container = $("<ul class='_smart_autocomplete_container' style='display:none'></ul>");
+        var default_container = $("<ul class='smart_autocomplete_container' style='display:none'></ul>");
         default_container.appendTo("body");
 
         options.resultsContainer = default_container;

@@ -355,10 +355,10 @@ describe('Smart AutoComplete', function () {
       });
 
       it("should not set the text if the item is no match text", function(){
-        setFixtures("<input id='autoCompleteField'/><div class='_smart_autocomplete_no_result'>No Result</div>");
+        setFixtures("<input id='autoCompleteField'/><div class='smart_autocomplete_no_result'>No Result</div>");
         $("#autoCompleteField").smartAutoComplete({});
 
-        $("#autoCompleteField").trigger('itemSelect', [$("div._smart_autocomplete_no_result")]);
+        $("#autoCompleteField").trigger('itemSelect', [$("div.smart_autocomplete_no_result")]);
         expect($("#autoCompleteField")).not.toHaveValue('No Result');
       });
 
