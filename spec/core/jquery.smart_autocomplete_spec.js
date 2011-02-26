@@ -37,6 +37,10 @@ describe('Smart AutoComplete', function () {
         expect(smart_autocomplete_options.resultElement).toEqual("li");
       });
 
+      it('type ahead should be a false', function () {
+        expect(smart_autocomplete_options.typeAhead).toEqual(false);
+      });
+
     });
 
     describe('overriding default values', function(){
@@ -89,6 +93,13 @@ describe('Smart AutoComplete', function () {
         smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
 
         expect(smart_autocomplete_options.resultElement).toEqual("div");
+      });
+
+      it('type ahead is set to true', function () {
+        $("#autoCompleteField").smartAutoComplete({typeAhead: true});
+        smart_autocomplete_options = $("#autoCompleteField").data("smart-autocomplete");
+
+        expect(smart_autocomplete_options.typeAhead).toEqual(true);
       });
 
     });
@@ -201,13 +212,16 @@ describe('Smart AutoComplete', function () {
         expect(result_formatter_called).toBeTruthy();
       });
 
-      it("should remove previous results", function(){
-        setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'><span class='smart_autocomplete_result'>test</span></div>");
-        $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function, resultsContainer: "#autoCompleteAppendToBlock" });
-        $("#autoCompleteField").bind('showResults', function(ev){ ev.preventDefault(); });
+      it("should call clearResults method", function(){
+
+        var mock_autocomplete_obj = {clearResults: function(){}, resultFormatter: function(){} };
+        spyOn(mock_autocomplete_obj, 'clearResults');
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
         $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
-        expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
+        expect(mock_autocomplete_obj.clearResults).toHaveBeenCalled();
       });
 
       it("should append the results to given result container", function(){
@@ -217,14 +231,6 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteAppendToBlock")).toHaveHtml("abc");
-      });
-
-      it("should create a container and append the results if no result container is given", function(){
-        // $("#autoCompleteField").smartAutoComplete({resultFormatter: result_formatter_function });
-        // $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
-
-        // expect($("._smart_autocomplete_container")).toHaveHtml("abc");
-
       });
 
       it("fires the show results event", function(){
@@ -251,6 +257,18 @@ describe('Smart AutoComplete', function () {
 
     describe('no results event', function(){
 
+      it("should call clearResults method", function(){
+
+        var mock_autocomplete_obj = {clearResults: function(){}, resultFormatter: function(){} };
+        spyOn(mock_autocomplete_obj, 'clearResults');
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger('noResults');
+
+        expect(mock_autocomplete_obj.clearResults).toHaveBeenCalled();
+      });
+
       it("should append no results found banner to result container", function(){
         setFixtures("<input id='autoCompleteField'/><ul id='resultsContainer'></ul>");
         $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
@@ -263,6 +281,16 @@ describe('Smart AutoComplete', function () {
     });
 
     describe('show results event', function(){
+
+      it("should show type ahead field if the type ahead option is enabled", function(){
+        setFixtures("<input id='autoCompleteField'/>");
+
+        $("#autoCompleteField").smartAutoComplete({ typeAhead: true });
+        $("#autoCompleteField").val("te");
+        $("#autoCompleteField").trigger('showResults', [["test"]]);
+
+        expect($("#autoCompleteField").prev('.smart_autocomplete_type_ahead_field').length).toEqual(1);
+      });
 
       it("should apply styles to container relative to field", function(){
         setFixtures("<input id='autoCompleteField'/><div id='resultsContainer' style='display:none'></div>");
@@ -283,12 +311,20 @@ describe('Smart AutoComplete', function () {
 
       });
 
-      it("should bind an event to document to track out of focus clicks", function(){
-      });
-
     });
 
     describe('hide results event', function(){
+
+      it("should call clearResults method", function(){
+        var mock_autocomplete_obj = {clearResults: function(){}, resultFormatter: function(){} };
+        spyOn(mock_autocomplete_obj, 'clearResults');
+
+        $("#autoCompleteField").smartAutoComplete({});
+        $("#autoCompleteField").data("smart-autocomplete", mock_autocomplete_obj); //replace with the mock
+        $("#autoCompleteField").trigger('noResults');
+
+        expect(mock_autocomplete_obj.clearResults).toHaveBeenCalled();
+      });
 
       it("should make result container hidden", function(){
         setFixtures("<input id='autoCompleteField'/><div id='resultsContainer'></div>");
@@ -300,7 +336,7 @@ describe('Smart AutoComplete', function () {
       });
 
       it("fill in the field with best matching value if force select is enabled and no item is selected", function(){
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'], itemSelected: false });
+        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'], itemSelected: false, currentSelection: 0 });
         $("#autoCompleteField").trigger('hideResults');
 
         expect($("#autoCompleteField")).toHaveValue('Apple');
@@ -387,6 +423,28 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', 'http://localhost/autocomplete');
         expect($.Deferred).toHaveBeenCalled();
       }); 
+
+    });
+
+    describe('default clear results method', function(){
+
+      it("should remove type ahead field", function(){
+        setFixtures("<input class='smart_autocomplete_type_ahead_field'/><input id='autoCompleteField'/>");
+
+        $("#autoCompleteField").smartAutoComplete({ typeAhead: true });
+        $("#autoCompleteField").smartAutoComplete().clearResults();
+
+        expect($('.smart_autocomplete_type_ahead_field').length).toEqual(0);
+      });
+
+      it("should remove exisiting results", function(){
+        setFixtures("<input id='autoCompleteField'/><div id='autoCompleteAppendToBlock'><span class='smart_autocomplete_result'>test</span></div>");
+        $("#autoCompleteField").smartAutoComplete({resultsContainer: "#autoCompleteAppendToBlock" });
+        $("#autoCompleteField").smartAutoComplete().clearResults();
+
+        expect($("#autoCompleteAppendToBlock")).toHaveHtml("");
+      });
+
 
     });
 });
