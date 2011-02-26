@@ -13,10 +13,10 @@
         $("#basic_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango']});
 
         //example 2
-        $("#country_field").smartAutoComplete({source: "countries.json", forceSelect: true, maxResults: 5, delay: 200, typeAhead: true});
+        $("#country_field").smartAutoComplete({source: "countries.json", forceSelect: true, maxResults: 5, delay: 200 });
 
         //example 3
-        $("#type_ahead_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], typeAhead: true});
+        $("#type_ahead_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], typeAhead: true });
 
         //example 4
         $("#textarea_autocomplete_field").smartAutoComplete({source: "countries.json", maxResults: 5, delay: 200 } );
@@ -109,49 +109,51 @@
             <fieldset>
               <legend>Example 1</legend>
 
+              <p>Most basic configuration, with source provided as an Array</p>
+
               <div style="">
                 <label for="basic_autocomplete_field">Favorite Fruit</label>
                 <input type="text" autocomplete="off" id="basic_autocomplete_field"/>
               </div>
 
-              <p>Most basic configuration, with source provided as an Array</p>
             </fieldset>
 
             <fieldset>
               <legend>Example 2</legend>
+
+              <p>This widget loads the source list via AJAX from the given URL as the source. Also, <em>forceSelect</em> option is enforced, <em>maxResults</em> is set to 5 and there's a <em>delay</em> of 300ms between requests.</p>
+
+              <div>
+                <label for="country_field">Country</label>
+                <input type="text" autocomplete="off" id="country_field"/>
+              </div>
+
+            </fieldset>
+
+            <fieldset>
+              <legend>Example 3</legend>
+
+              <p>With <em>typeAhead</em> option enabled</p>
 
               <div>
                 <label for="type_ahead_autocomplete_field">Favorite Fruit</label>
                 <input type="text" autocomplete="off" id="type_ahead_autocomplete_field"/>
               </div>
 
-              <p>With <em>typeAhead</em> option enabled</p>
             </fieldset>
 
             <fieldset>
-              <legend>Example 3</legend>
+              <legend>Example 4</legend>
 
-              <div>
-                <label for="country_field">Country</label>
-                <input type="text" autocomplete="off" id="country_field"/>
-              </div>
-              <p>This widget loads the source list via AJAX from the given URL as the source. Also, <em>forceSelect</em> option is enforced, <em>maxResults</em> is set to 5 and there's a <em>delay</em> of 300ms between requests.</p>
-            </fieldset>
-
-            
-
-
-
-            <fieldset>
-              <legend>Example 3</legend>
+              <p>This widget implements a Comma-seperated list, with auto-compeltion. To achieve this we have bind handlers to custom events emitted by the plugin.</p>
 
               <div>
                 <label for="textarea_autocomplete_field">Favorite Countries</label>
                 <textarea  autocomplete="off" id="textarea_autocomplete_field"></textarea>
                 <p class='note'>You can enter mulitple values seperated by comma</p>
               </div>
-              <p>This widget implements a Comma-seperated list, with auto-compeltion. To achieve this we have bind handlers to custom events emitted by the plugin.</p>
             </fieldset>
+
           </form>
         </div>
 
