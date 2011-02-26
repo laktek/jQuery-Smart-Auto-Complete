@@ -17,7 +17,12 @@
   maxResults: (integer) maximum number of results to return (default: null (unlimited))
   delay: (integer) delay before autocomplete starts (default: 0)
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
-  forceSelect: (boolean) always fills the field with best matching result, without leaving custom input (similar to a select field) (default: false)
+  forceSelect: (boolean) If set to true, field will be always filled with best matching result, without leaving the custom input.
+               Better to enable this option, if you want autocomplete field to behave similar to a HTML select field. (Check Example 2 in the demo)
+               (default: false)
+  typeAhead: (boolean) If set to true, it will offer the best matching result in grey within the field; that can be auto-completed by pressing the right arrow-key or enter.
+             This is similar to behaviour in Google Instant Search's query field (Check Example 3 in the demo) 
+             (default: false)
   source:  (string/array) you can supply an array with items or a string containing a URL to fetch items for the source
            this is optional if you prefer to have your own filter method 
   filter: (function) define a custom function that would return matching items to the entered text (this will override the default filtering algorithm)
@@ -33,8 +38,8 @@
   keyIn: fires when user types into the field (parameters: query)
   resultsReady: fires when the filter function returns (parameters: results)
   showResults: fires when results are shown (parameters: results)
-  hideResults: fires when results are hidden
   noResults: fires when filter returns an empty array
+  hideResults: fires when results are hidden
   itemSelect: fires when user selects an item from the result list (paramters: item)
   itemOver: fires when user highlights an item with mouse or arrow keys (paramters: item)
   itemOut: fires when user moves out from an highlighted item (paramters: item)
@@ -66,6 +71,7 @@
                             delay: 0,
                             disabled: false,
                             forceSelect: false,
+                            typeAhead: false,
                             resultElement: "li",
 
                             resultFormatter: function(r){ return ("<li>" + r + "</li>"); },
@@ -103,24 +109,16 @@
                             alignResultsContainer: false,
 
                             clearResults: function(){
+                              //remove type ahead field
+                              $(this.context).prev(".smart_autocomplete_type_ahead_field").remove();
+
+                              //clear results div
                               $(this.resultsContainer).html("");
                             },
 
-                            bindHideResultsContainerOnBlur: function(){
-                              var context = $(this.context);
-                              var results_container = $(this.resultsContainer);
-                              $(document).bind('mousedown.smart_autocomplete', function(event){ 
-                                var elemIsParent = $.contains(results_container[0], event.target);
-                                if(event.target == results_container[0] || event.target == context[0] || elemIsParent) return
-               
-                                $(context).trigger('hideResults');
-                                $(document).unbind("mousedown.smart_autocomplete");
-                              });
-                            },
-                            
                             setCurrentSelectionToContext: function(){
-                                if(this.rawResults.length > 0)
-                                  $(this.context).val(this.rawResults[(this.currentSelection || 0)]);
+                                if(this.rawResults.length > 0 && this.currentSelection >= 0)
+                                  $(this.context).val(this.rawResults[(this.currentSelection)]);
                             },
 
                             setItemSelected: function(val){
@@ -212,20 +210,46 @@
         //event specific data
         var raw_results = ev.customData.results; 
 
+        //type ahead
+        if(options.typeAhead && (raw_results[0].substr(0, $(context).val().length) == $(context).val()) ){
+          var suggestion = raw_results[0]; //options.typeAheadExtractor($(context).val(), raw_results[0]); 
+          
+          //add new typeAhead field
+          $(context).before("<input class='smart_autocomplete_type_ahead_field' type='text' autocomplete='off' disabled='disabled' value='" + suggestion + "'/>");
+
+          $(context).css({
+            position: "relative",
+            zIndex: 2,
+            background: 'transparent'
+          });
+
+          var typeAheadField = $(context).prev("input");
+          typeAheadField.css({
+            position: "absolute",
+            zIndex: 1,
+            overflow: 'hidden',
+            background: 'none repeat scroll 0 0 #FFFFFF',
+            borderColor: 'transparent',
+            color: 'silver'
+          });
+
+          //trigger item over for first item
+          options.currentSelection = 0;
+          $(context).trigger('itemOver', results_container.children()[options.currentSelection]);
+        }
+
         //show the results container after aligning it with the field 
         if(options.alignResultsContainer){
           results_container.css({ 
                 position: "absolute",
                 top: function(){ return $(context).offset().top + $(context).height(); }, 
                 left: function(){ return $(context).offset().left; }, 
-                width: function(){ return $(context).width(); } 
+                width: function(){ return $(context).width(); }, 
+                zIndex: 1000
           })
         }  
         results_container.show();
 
-        // hide the results container when click outside of it
-        options.bindHideResultsContainerOnBlur();
-        
       }
     };
 
@@ -240,8 +264,14 @@
         if(options.forceSelect && !options.itemSelected)
           options.setCurrentSelectionToContext();
 
+        //clear results
+        options.clearResults(); 
+
         //hide the results container
         $(options.resultsContainer).hide();
+
+        //set current selection to null
+        options.currentSelection = null;
       }
     };
 
@@ -386,6 +416,13 @@
          if($(options.context).val().length >= options.minCharLimit){
           $(options.context).trigger('keyIn', [$(this).val()]); 
          }
+         else{
+            if($(options.resultsContainer).is(':visible')){ 
+              options.currentSelection = null;
+              $(options.context).trigger('hideResults');
+            }
+         }
+
         }
       });
 
@@ -400,15 +437,21 @@
         }
       });
 
-      $(this).blur(function(ev){
-        $(this).closest("form").unbind("submit.block_for_autocomplete");
-        //set a timeout to trigger hide results
-        //$(this).trigger('hideResults'); 
+      //check for loosing focus on smart complete field and results container
+      //$(this).blur(function(ev){
+      $(document).bind("focusin click", function(ev){
+        if($(options.resultsContainer).is(':visible')){
+          var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
+          if(ev.target == options.resultsContainer[0] || ev.target == options.context[0] || elemIsParent) return
+           
+          $(options.context).closest("form").unbind("submit.block_for_autocomplete");
+          $(options.context).trigger('hideResults');
+        }
       });
 
       //bind events to results container
       $(options.resultsContainer).delegate(options.resultElement, 'mouseenter.smart_autocomplete', function(){
-        var current_selection = options.currentSelection;
+        var current_selection = options.currentSelection || 0;
         var result_suggestions = $(options.resultsContainer).children();
 
         options['currentSelection'] = $(this).prevAll().length;
