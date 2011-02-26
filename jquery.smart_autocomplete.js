@@ -39,10 +39,10 @@
   resultsReady: fires when the filter function returns (parameters: results)
   showResults: fires when results are shown (parameters: results)
   noResults: fires when filter returns an empty array
-  hideResults: fires when results are hidden
   itemSelect: fires when user selects an item from the result list (paramters: item)
-  itemOver: fires when user highlights an item with mouse or arrow keys (paramters: item)
-  itemOut: fires when user moves out from an highlighted item (paramters: item)
+  itemFocus: fires when user highlights an item with mouse or arrow keys (paramters: item)
+  itemUnfocus: fires when user moves out from an highlighted item (paramters: item)
+  lostFocus: fires when autocomplete field loses focus by user clicking outside of the field or focusing on another field. 
 
  })
 */
@@ -235,7 +235,7 @@
 
           //trigger item over for first item
           options.currentSelection = 0;
-          $(context).trigger('itemOver', results_container.children()[options.currentSelection]);
+          $(context).trigger('itemFocus', results_container.children()[options.currentSelection]);
         }
 
         //show the results container after aligning it with the field 
@@ -250,28 +250,6 @@
         }  
         results_container.show();
 
-      }
-    };
-
-    $.event.special.hideResults = {
-      setup: function(){ return false },
-
-      _default: function(ev){    
-        var context = ev.target;
-        var options = $(context).data("smart-autocomplete");
-
-        //if force select is selected and no item is selected, set currently highlighted value
-        if(options.forceSelect && !options.itemSelected)
-          options.setCurrentSelectionToContext();
-
-        //clear results
-        options.clearResults(); 
-
-        //hide the results container
-        $(options.resultsContainer).hide();
-
-        //set current selection to null
-        options.currentSelection = null;
       }
     };
 
@@ -315,12 +293,12 @@
         //set item selected property
         options.setItemSelected(true);
         
-        //hide results container
-        $(context).trigger('hideResults');
+        //trigger lost focus
+        $(context).trigger('lostFocus');
       }
     };
 
-    $.event.special.itemOver = {
+    $.event.special.itemFocus = {
       setup: function(){ return false },
 
       _default: function(ev){    
@@ -332,7 +310,7 @@
       }
     };
 
-    $.event.special.itemOut = { 
+    $.event.special.itemUnfocus = { 
       setup: function(){ return false },
 
       _default: function(ev){    
@@ -343,6 +321,28 @@
         $(item).removeClass("highlight");
       }
     }
+
+    $.event.special.lostFocus = {
+      setup: function(){ return false },
+
+      _default: function(ev){    
+        var context = ev.target;
+        var options = $(context).data("smart-autocomplete");
+
+        //if force select is selected and no item is selected, set currently highlighted value
+        if(options.forceSelect && !options.itemSelected)
+          options.setCurrentSelectionToContext();
+
+        //clear results
+        options.clearResults(); 
+
+        //hide the results container
+        $(options.resultsContainer).hide();
+
+        //set current selection to null
+        options.currentSelection = null;
+      }
+    };
 
     var passed_options = arguments[0];
 
@@ -375,14 +375,14 @@
           var result_suggestions = $(options.resultsContainer).children();
 
           if(current_selection >= 0)
-            $(options.context).trigger('itemOut', result_suggestions[current_selection] );
+            $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
 
           if(--current_selection <= 0)
             current_selection = 0;
 
           options['currentSelection'] = current_selection;
 
-          $(options.context).trigger('itemOver', [ result_suggestions[current_selection] ] );
+          $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
         }
 
         //down arrow
@@ -391,14 +391,14 @@
           var result_suggestions = $(options.resultsContainer).children();
 
           if(current_selection >= 0)
-            $(options.context).trigger('itemOut', result_suggestions[current_selection] );
+            $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
 
           if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
             current_selection = 0;
 
           options['currentSelection'] = current_selection;
 
-          $(options.context).trigger('itemOver', [ result_suggestions[current_selection] ] );
+          $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
           
         }
 
@@ -419,7 +419,7 @@
          else{
             if($(options.resultsContainer).is(':visible')){ 
               options.currentSelection = null;
-              $(options.context).trigger('hideResults');
+              $(options.context).trigger('lostFocus');
             }
          }
 
@@ -445,7 +445,7 @@
           if(ev.target == options.resultsContainer[0] || ev.target == options.context[0] || elemIsParent) return
            
           $(options.context).closest("form").unbind("submit.block_for_autocomplete");
-          $(options.context).trigger('hideResults');
+          $(options.context).trigger('lostFocus');
         }
       });
 
@@ -456,12 +456,12 @@
 
         options['currentSelection'] = $(this).prevAll().length;
 
-        $(options.context).trigger('itemOver', [this] );
+        $(options.context).trigger('itemFocus', [this] );
           
       });
 
       $(options.resultsContainer).delegate(options.resultElement, 'mouseleave.smart_autocomplete', function(){
-        $(options.context).trigger('itemOut', [this] );
+        $(options.context).trigger('itemUnfocus', [this] );
       });
 
       $(options.resultsContainer).delegate(options.resultElement, 'click.smart_autocomplete', function(){
@@ -475,10 +475,10 @@
         resultsReady: function(ev, results){ ev.customData  = {'results': results }; }, 
         showResults: function(ev, results){ ev.customData = {'results': results } },
         noResults: function(){},
-        hideResults: function(){},
+        lostFocus: function(){},
         itemSelect: function(ev, item){ ev.customData = {'item': item }; },
-        itemOver: function(ev, item){ ev.customData = {'item': item }; },
-        itemOut: function(ev, item){ ev.customData = {'item': item }; }
+        itemFocus: function(ev, item){ ev.customData = {'item': item }; },
+        itemUnfocus: function(ev, item){ ev.customData = {'item': item }; }
       });
     });
       

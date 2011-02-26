@@ -313,7 +313,7 @@ describe('Smart AutoComplete', function () {
 
     });
 
-    describe('hide results event', function(){
+    describe('lost focus event', function(){
 
       it("should call clearResults method", function(){
         var mock_autocomplete_obj = {clearResults: function(){}, resultFormatter: function(){} };
@@ -329,7 +329,7 @@ describe('Smart AutoComplete', function () {
       it("should make result container hidden", function(){
         setFixtures("<input id='autoCompleteField'/><div id='resultsContainer'></div>");
         $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").trigger('hideResults');
+        $("#autoCompleteField").trigger('lostFocus');
 
         expect($("#resultsContainer")).not.toBeVisible();
 
@@ -337,7 +337,7 @@ describe('Smart AutoComplete', function () {
 
       it("fill in the field with best matching value if force select is enabled and no item is selected", function(){
         $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'], itemSelected: false, currentSelection: 0 });
-        $("#autoCompleteField").trigger('hideResults');
+        $("#autoCompleteField").trigger('lostFocus');
 
         expect($("#autoCompleteField")).toHaveValue('Apple');
       });
@@ -371,37 +371,37 @@ describe('Smart AutoComplete', function () {
 
       });
 
-      it("should trigger the hide results event after a value is selected", function(){
+      it("should trigger the lost focus event after a value is selected", function(){
         setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
         var output_buffer = "";
         $("#autoCompleteField").smartAutoComplete({});
-        $("#autoCompleteField").bind('hideResults', function(){ output_buffer = "hide results called"});
+        $("#autoCompleteField").bind('lostFocus', function(){ output_buffer = "lost focus called"});
 
         $("#autoCompleteField").trigger('itemSelect', [$("#selectedField")]);
-        expect(output_buffer).toEqual("hide results called");
+        expect(output_buffer).toEqual("lost focus called");
       });
 
     });
 
-    describe('item over event', function(){
+    describe('item focus event', function(){
 
       it('should add highlight class to the element', function(){
         setFixtures("<input id='autoCompleteField'/><div id='highlightedField'>I was highlighted!</div>");
         $("#autoCompleteField").smartAutoComplete({});
 
-        $("#autoCompleteField").trigger('itemOver', [$("#highlightedField")]);
+        $("#autoCompleteField").trigger('itemFocus', [$("#highlightedField")]);
         expect($("#highlightedField")).toHaveClass('highlight');
       });
 
     })
 
-    describe('item out event', function(){
+    describe('item unfocus event', function(){
 
       it('should remove highlight class from the element', function(){
         setFixtures("<input id='autoCompleteField'/><div class='highlight' id='highlightedField'>I was highlighted!</div>");
         $("#autoCompleteField").smartAutoComplete({});
 
-        $("#autoCompleteField").trigger('itemOut', [$("#highlightedField")]);
+        $("#autoCompleteField").trigger('itemUnfocus', [$("#highlightedField")]);
         expect($("#highlightedField")).not.toHaveClass('highlight');
       });
 

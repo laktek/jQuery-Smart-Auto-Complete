@@ -92,6 +92,8 @@ Reference to the result elements collection (e.g. li, div.result)
 
 ## Events
 
+Following custom events will be bound to the element which has `smartAutoComplete` enabled. You can bind custom handlers to these events and also cancel the default handler by calling `event.preventDefault()` in your handler.
+
 ### keyIn
 
 **parameters**: query 
