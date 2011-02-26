@@ -94,6 +94,8 @@ Reference to the result elements collection (e.g. li, div.result)
 
 Following custom events will be bound to the element which has `smartAutoComplete` enabled. You can bind custom handlers to these events and also cancel the default handler by calling `event.preventDefault()` in your handler.
 
+To learn more about the default behaviour of the events, please refer to the specs at `spec/core/jquery.smart_autocomplete_spec.js`.
+
 ### keyIn
 
 **parameters**: query 
@@ -116,9 +118,9 @@ Fires after results are added to the results container
 
 Fires if filter function returned no results
 
-### hideResults
+### lostFocus 
 
-Fires when results are to be hidden (e.g. field looses focus or after a value is selected)
+Fires when autocomplete field loses focus by user clicking outside of the field or focusing on another field. Also, this event is fired when a value is selected
 
 ### itemSelect
 
@@ -126,13 +128,13 @@ Fires when results are to be hidden (e.g. field looses focus or after a value is
 
 Fires when user selects an item from the result list 
 
-### itemOver
+### itemFocus
 
 **paramters**: item
 
 Fires when user focuses on an item in results list with mouse or arrow keys
 
-### itemOut
+### itemUnfocus
 
 **paramters**: item
 
@@ -142,9 +144,10 @@ Fires when an item in results list looses focus
 
 ## Demo 
 
-Basic Examples - http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/index.html
+[Basic Examples](http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/index.html)
 
-GitHub Instant Search Example - http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/github_instant
+[GitHub Instant Search Example](http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/github_instant)
+
 
 Copyright (c) 2011 Lakshan Perera (laktek.com)
 
