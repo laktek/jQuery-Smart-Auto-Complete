@@ -140,6 +140,10 @@ Fires when an item in results list looses focus
 
 ## Demo 
 
+Basic Examples - http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/index.html
+
+GitHub Instant Search Example - http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/github_instant
+
 Copyright (c) 2011 Lakshan Perera (laktek.com)
 
 Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) licenses.
