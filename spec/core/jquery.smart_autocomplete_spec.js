@@ -269,15 +269,6 @@ describe('Smart AutoComplete', function () {
         expect(mock_autocomplete_obj.clearResults).toHaveBeenCalled();
       });
 
-      it("should append no results found banner to result container", function(){
-        setFixtures("<input id='autoCompleteField'/><ul id='resultsContainer'></ul>");
-        $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer" });
-        $("#autoCompleteField").trigger('noResults');
-
-        expect($("#resultsContainer")).toHaveText('Sorry, No Results Found');
-
-      });
-
     });
 
     describe('show results event', function(){

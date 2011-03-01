@@ -268,8 +268,6 @@
         if(result_container){
          //clear previous results
          options.clearResults(); 
-
-         result_container.append("<li class='smart_autocomplete_no_result'>Sorry, No Results Found</li>");
         }
 
       }
