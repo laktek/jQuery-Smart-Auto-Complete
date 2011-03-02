@@ -283,10 +283,6 @@
         //event specific data
         var selected_item = ev.customData.item;
 
-        //return if no result item is selected
-        if($(selected_item).hasClass('smart_autocomplete_no_result'))
-          return;
-
         //get the text from selected item
         var selected_value = $(selected_item).text() || $(selected_item).val();
         //set it as the value of the autocomplete field

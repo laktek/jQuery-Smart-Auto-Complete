@@ -65,6 +65,8 @@ This is similar to behaviour in Google Instant Search's query field (Check Examp
 
 ### source  (string/array)
 
+**required**
+
 Defines the list of items to be filtered. You can give a hardcoded array or a string containing a URL, which will return a JSON array, as the source.
 Note: Your can omit this option or provide a different object, if you are defining your own filter method 
 
@@ -139,6 +141,13 @@ Fires when user focuses on an item in results list with mouse or arrow keys
 **paramters**: item
 
 Fires when an item in results list looses focus
+
+## Style Classes
+
+Following CSS classes will be used to reference elements added by jQuery Smart Autocomplete plugin.
+
+smart_autocomplete_container - A <em>ul</em> element containing the results.
+smart_autocomplete_type_ahead_field - If <em>typeAhead<em> option is enabled, additional field will be added behind the autocomplete enabled text field. 
 
 ## Learn More
 
