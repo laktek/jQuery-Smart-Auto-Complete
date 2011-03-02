@@ -146,8 +146,8 @@ Fires when an item in results list looses focus
 
 Following CSS classes will be used to reference elements added by jQuery Smart Autocomplete plugin.
 
-smart_autocomplete_container - A <em>ul</em> element containing the results.
-smart_autocomplete_type_ahead_field - If <em>typeAhead<em> option is enabled, additional field will be added behind the autocomplete enabled text field. 
+smart_autocomplete_container - A *ul* element containing the results.
+smart_autocomplete_type_ahead_field - If *typeAhead* option is enabled, additional field will be added behind the autocomplete enabled text field. 
 
 ## Learn More
 
