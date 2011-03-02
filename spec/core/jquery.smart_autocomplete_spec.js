@@ -330,7 +330,7 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").smartAutoComplete({ resultsContainer: "#resultsContainer", forceSelect: true, rawResults: ['Apple','Banana', 'Orange'], itemSelected: false, currentSelection: 0 });
         $("#autoCompleteField").trigger('lostFocus');
 
-        expect($("#autoCompleteField")).toHaveValue('Apple');
+        expect($("#autoCompleteField")).toHaveValue('');
       });
 
     });

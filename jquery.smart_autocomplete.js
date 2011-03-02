@@ -327,9 +327,9 @@
         var context = ev.target;
         var options = $(context).data("smart-autocomplete");
 
-        //if force select is selected and no item is selected, set currently highlighted value
+        //if force select is selected and no item is selected, clear currently entered text 
         if(options.forceSelect && !options.itemSelected)
-          options.setCurrentSelectionToContext();
+          $(options.context).val("");
 
         //clear results
         options.clearResults(); 
