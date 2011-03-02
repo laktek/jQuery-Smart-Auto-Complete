@@ -142,7 +142,7 @@ Fires when user focuses on an item in results list with mouse or arrow keys
 
 Fires when an item in results list looses focus
 
-## Style Classes
+## CSS Classes
 
 Following CSS classes will be used to reference elements added by jQuery Smart Autocomplete plugin.
 
