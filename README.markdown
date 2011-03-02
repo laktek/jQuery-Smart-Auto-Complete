@@ -148,6 +148,8 @@ Following CSS classes will be used to reference elements added by jQuery Smart A
 
 **smart_autocomplete_container** - A *ul* element containing the results.
 
+**smart_autocomplete_highlight** - This class will be added to a result element when it's focused.  
+
 **smart_autocomplete_type_ahead_field** - If *typeAhead* option is enabled, additional field will be added behind the autocomplete enabled text field. 
 
 ## Learn More

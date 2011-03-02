@@ -345,14 +345,6 @@ describe('Smart AutoComplete', function () {
         expect($("#autoCompleteField")).toHaveValue('I was selected!');
       });
 
-      it("should not set the text if the item is no match text", function(){
-        setFixtures("<input id='autoCompleteField'/><div class='smart_autocomplete_no_result'>No Result</div>");
-        $("#autoCompleteField").smartAutoComplete({});
-
-        $("#autoCompleteField").trigger('itemSelect', [$("div.smart_autocomplete_no_result")]);
-        expect($("#autoCompleteField")).not.toHaveValue('No Result');
-      });
-
       it("should set the item selected property to true", function(){
         setFixtures("<input id='autoCompleteField'/><div id='selectedField'>I was selected!</div>");
         $("#autoCompleteField").smartAutoComplete({});
@@ -381,7 +373,7 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").smartAutoComplete({});
 
         $("#autoCompleteField").trigger('itemFocus', [$("#highlightedField")]);
-        expect($("#highlightedField")).toHaveClass('highlight');
+        expect($("#highlightedField")).toHaveClass('smart_autocomplete_highlight');
       });
 
     })
@@ -389,11 +381,11 @@ describe('Smart AutoComplete', function () {
     describe('item unfocus event', function(){
 
       it('should remove highlight class from the element', function(){
-        setFixtures("<input id='autoCompleteField'/><div class='highlight' id='highlightedField'>I was highlighted!</div>");
+        setFixtures("<input id='autoCompleteField'/><div class='smart_autocomplete_highlight' id='highlightedField'>I was highlighted!</div>");
         $("#autoCompleteField").smartAutoComplete({});
 
         $("#autoCompleteField").trigger('itemUnfocus', [$("#highlightedField")]);
-        expect($("#highlightedField")).not.toHaveClass('highlight');
+        expect($("#highlightedField")).not.toHaveClass('smart_autocomplete_highlight');
       });
 
     })

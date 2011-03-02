@@ -304,7 +304,7 @@
         //event specific data
         var item = ev.customData.item;
 
-        $(item).addClass("highlight");
+        $(item).addClass("smart_autocomplete_highlight");
       }
     };
 
@@ -316,7 +316,7 @@
         //event specific data
         var item = ev.customData.item;
 
-        $(item).removeClass("highlight");
+        $(item).removeClass("smart_autocomplete_highlight");
       }
     }
 
