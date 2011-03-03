@@ -156,6 +156,8 @@ Following classes will be used to reference elements added by jQuery Smart Autoc
 
 ## Learn More
 
+[Introducing jQuery Smart AutoComplete](http://laktek.com/2011/03/03/introducing-jquery-smart-autocomplete/)
+
 ## Demo 
 
 [Basic Examples](http://laktek.github.com/jQuery-Smart-Auto-Complete/demo/index.html)
