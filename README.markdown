@@ -40,7 +40,7 @@ Sets the maximum number of results to return.
 
 **default**: 0
 
-Sets delay before calling filter function. 
+Sets the number of miliseconds plugin should wait, before calling the filter function. 
 
 ### disabled (boolean)
 
@@ -142,9 +142,9 @@ Fires when user focuses on an item in results list with mouse or arrow keys
 
 Fires when an item in results list looses focus
 
-## CSS Classes
+## Styling 
 
-Following CSS classes will be used to reference elements added by jQuery Smart Autocomplete plugin.
+Following classes will be used to reference elements added by jQuery Smart Autocomplete plugin.
 
 **smart_autocomplete_container** - A *ul* element containing the results.
 
