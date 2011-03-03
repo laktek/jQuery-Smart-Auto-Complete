@@ -138,7 +138,7 @@
         var filter = options.filter;
 
         //event specific data
-        var query = ev.customData.query;
+        var query = ev.smartAutocompleteData.query;
 
         if(options.disabled)
           return false;
@@ -166,7 +166,7 @@
         var options = $(context).data("smart-autocomplete");
 
         //event specific data
-        var results = ev.customData.results;
+        var results = ev.smartAutocompleteData.results;
 
         //exit if smart complete is disabled
         if(options.disabled)
@@ -209,7 +209,7 @@
         var results_container = $(options.resultsContainer);
 
         //event specific data
-        var raw_results = ev.customData.results; 
+        var raw_results = ev.smartAutocompleteData.results; 
 
         //type ahead
         if(options.typeAhead && (raw_results[0].substr(0, $(context).val().length) == $(context).val()) ){
@@ -281,7 +281,7 @@
         var options = $(context).data("smart-autocomplete");
 
         //event specific data
-        var selected_item = ev.customData.item;
+        var selected_item = ev.smartAutocompleteData.item;
 
         //get the text from selected item
         var selected_value = $(selected_item).text() || $(selected_item).val();
@@ -302,7 +302,7 @@
       _default: function(ev){    
 
         //event specific data
-        var item = ev.customData.item;
+        var item = ev.smartAutocompleteData.item;
 
         $(item).addClass("smart_autocomplete_highlight");
       }
@@ -314,7 +314,7 @@
       _default: function(ev){    
 
         //event specific data
-        var item = ev.customData.item;
+        var item = ev.smartAutocompleteData.item;
 
         $(item).removeClass("smart_autocomplete_highlight");
       }
@@ -481,14 +481,14 @@
 
       //bind plugin specific events
       $(this).bind({
-        keyIn: function(ev, query){ ev.customData  = {'query': query }; },
-        resultsReady: function(ev, results){ ev.customData  = {'results': results }; }, 
-        showResults: function(ev, results){ ev.customData = {'results': results } },
+        keyIn: function(ev, query){ ev.smartAutocompleteData  = {'query': query }; },
+        resultsReady: function(ev, results){ ev.smartAutocompleteData  = {'results': results }; }, 
+        showResults: function(ev, results){ ev.smartAutocompleteData = {'results': results } },
         noResults: function(){},
         lostFocus: function(){},
-        itemSelect: function(ev, item){ ev.customData = {'item': item }; },
-        itemFocus: function(ev, item){ ev.customData = {'item': item }; },
-        itemUnfocus: function(ev, item){ ev.customData = {'item': item }; }
+        itemSelect: function(ev, item){ ev.smartAutocompleteData = {'item': item }; },
+        itemFocus: function(ev, item){ ev.smartAutocompleteData = {'item': item }; },
+        itemUnfocus: function(ev, item){ ev.smartAutocompleteData = {'item': item }; }
       });
     });
       

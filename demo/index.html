@@ -71,9 +71,9 @@
         $("#textarea_autocomplete_field").bind({
 
            keyIn: function(ev){
-             var tag_list = ev.customData.query.split(","); 
+             var tag_list = ev.smartAutocompleteData.query.split(","); 
              //pass the modified query to default event
-             ev.customData.query = $.trim(tag_list[tag_list.length - 1]);
+             ev.smartAutocompleteData.query = $.trim(tag_list[tag_list.length - 1]);
            },
 
            itemSelect: function(ev, selected_item){ 
@@ -152,19 +152,19 @@
 
         <div class="form-container">
           <form>
-            <fieldset>
+            <fieldset id="example_1">
               <legend>Example 1</legend>
 
               <p>Most basic configuration, with source provided as an Array</p>
 
-              <div style="">
+              <div>
                 <label for="basic_autocomplete_field">Favorite Fruit</label>
                 <input type="text" autocomplete="off" id="basic_autocomplete_field"/>
               </div>
 
             </fieldset>
 
-            <fieldset>
+            <fieldset id="example_2">
               <legend>Example 2</legend>
 
               <p>This widget loads the source list via AJAX from the given URL as the source. Also, <em>forceSelect</em> option is enforced, <em>maxResults</em> is set to 5 and there's a <em>delay</em> of 300ms between requests.</p>
@@ -176,7 +176,7 @@
 
             </fieldset>
 
-            <fieldset>
+            <fieldset id="example_3">
               <legend>Example 3</legend>
 
               <p>With <em>typeAhead</em> option enabled</p>
@@ -188,7 +188,7 @@
 
             </fieldset>
 
-            <fieldset>
+            <fieldset id="example_4">
                <legend>Example 4</legend>
 
                <p>Only shows the best matching suggestion in-field using the <em>typeAhead</em> option and <em>resultsContainer</em> is set to <em>false</em>.</p>
@@ -199,7 +199,7 @@
                </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset id="example_5">
               <legend>Example 5</legend>
 
               <p>In this example, we replace the default filtering algorithm with QuickSilver like filtering algorithm.</p>
@@ -210,19 +210,17 @@
               </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset id="example_6">
               <legend>Example 6</legend>
 
               <p>This implements a Comma-seperated list, with auto-compeltion. To achieve this we need to bind handlers to custom events emitted by the plugin.</p>
 
               <div>
                 <label for="textarea_autocomplete_field">Favorite Countries</label>
-                <textarea  autocomplete="off" id="textarea_autocomplete_field"></textarea>
+                <textarea  rows="3" cols="25" autocomplete="off" id="textarea_autocomplete_field"></textarea>
                 <p class='note'>You can enter mulitple values seperated by comma</p>
               </div>
             </fieldset>
-
-           
 
           </form>
         </div>

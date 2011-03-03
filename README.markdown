@@ -90,11 +90,13 @@ Define to which element(s) the results should be appended.
 
 ### resultElement (selector) 
 
-Reference to the result elements collection (e.g. li, div.result) 
+References the result elements collection. It should be a jQuery selector which could capture all result elements within the results container (e.g. li, div.result).
 
 ## Events
 
-Following custom events will be bound to the element which has `smartAutoComplete` enabled. You can bind custom handlers to these events and also cancel the default handler by calling `event.preventDefault()` in your handler.
+Following custom events will be available to the element which has `smartAutoComplete` activated. You can bind handlers to these events like other jQuery events and also cancel the default handler by calling `event.preventDefault()`.
+
+*Note:* Make sure you bind the handlers, only after `smartAutoComplete` is activated on the field. Otherwise context data could get overriden.
 
 To learn more about the default behaviour of the events, please refer to the specs at `spec/core/jquery.smart_autocomplete_spec.js`.
 
