@@ -111,6 +111,7 @@
                             clearResults: function(){
                               //remove type ahead field
                               $(this.context).prev(".smart_autocomplete_type_ahead_field").remove();
+                              $(this.context).css({ background: '#FFF' });
 
                               //clear results div
                               $(this.resultsContainer).html("");
