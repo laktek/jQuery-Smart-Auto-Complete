@@ -410,14 +410,15 @@
 
         //right arrow & enter key
         else if(ev.keyCode == '39' || ev.keyCode == '13'){
+          var type_ahead_field = $(options.context).prev('.smart_autocomplete_type_ahead_field');
           if(options.resultsContainer && $(options.resultsContainer).is(':visible')){
             var current_selection = options.currentSelection;
             var result_suggestions = $(options.resultsContainer).children();
 
             $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
           }
-          else if(options.typeAhead)
-            $(options.context).trigger('itemSelect', [ $(options.context).prev('.smart_autocomplete_type_ahead_field') ] );
+          else if(options.typeAhead && type_ahead_field.is(':visible'))
+            $(options.context).trigger('itemSelect', [ type_ahead_field ] );
 
           return false;
         }
