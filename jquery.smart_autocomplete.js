@@ -292,6 +292,9 @@
 
         //set item selected property
         options.setItemSelected(true);
+
+        //set number of current chars in field 
+        options.originalCharCount = $(context).val().length;
         
         //trigger lost focus
         $(context).trigger('lostFocus');
@@ -432,10 +435,6 @@
 
          //check minimum number of characters are typed
          if(current_char_count >= options.minCharLimit){
-
-          //set number of current chars in field 
-          options.originalCharCount = current_char_count;
-
           $(options.context).trigger('keyIn', [$(this).val()]); 
          }
          else{
