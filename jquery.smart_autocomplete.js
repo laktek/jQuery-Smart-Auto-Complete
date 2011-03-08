@@ -410,13 +410,13 @@
 
         //right arrow & enter key
         else if(ev.keyCode == '39' || ev.keyCode == '13'){
-          if(options.resultsContainer){
+          if(options.resultsContainer && $(options.resultsContainer).is(':visible')){
             var current_selection = options.currentSelection;
             var result_suggestions = $(options.resultsContainer).children();
 
             $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
           }
-          else
+          else if(options.typeAhead)
             $(options.context).trigger('itemSelect', [ $(options.context).prev('.smart_autocomplete_type_ahead_field') ] );
 
           return false;
@@ -438,9 +438,21 @@
       });
 
       $(this).focus(function(){
-        //disable form submission while auto suggest field has focus 
-        $(this).closest("form").bind("submit.block_for_autocomplete", function(ev){
-           return false; 
+        //if the field is in a form capture the return key event 
+        $(this).closest("form").bind("keydown.block_for_smart_autocomplete", function(ev){
+          if(ev.keyCode == '13'){
+            if(options.resultsContainer && $(options.resultsContainer).is(':visible')){
+              var current_selection = options.currentSelection;
+              var result_suggestions = $(options.resultsContainer).children();
+
+              $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
+              return false;
+            }
+            else if(options.typeAhead){
+              $(options.context).trigger('itemSelect', [ $(options.context).prev('.smart_autocomplete_type_ahead_field') ] );
+              return false;
+            }
+          }
         });
 
         if(options.forceSelect){
@@ -453,9 +465,9 @@
       $(document).bind("focusin click", function(ev){
         if($(options.resultsContainer).is(':visible')){
           var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
-          if(ev.target == options.resultsContainer[0] || ev.target == options.context[0] || elemIsParent) return
-           
-          $(options.context).closest("form").unbind("submit.block_for_autocomplete");
+          if(ev.target == options.resultsContainer[0] || ev.target == options.context || elemIsParent) return
+
+          $(options.context).closest("form").unbind("keydown.block_for_smart_autocomplete");
           $(options.context).trigger('lostFocus');
         }
       });
