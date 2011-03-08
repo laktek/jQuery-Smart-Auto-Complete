@@ -427,7 +427,7 @@
         else {
          var current_char_count = $(options.context).val().length;
          //check whether the string has modified
-         if(options.originalCharCount != current_char_count)
+         if(options.originalCharCount == current_char_count)
            return;
 
          //check minimum number of characters are typed
