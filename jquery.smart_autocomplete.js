@@ -440,6 +440,7 @@
       $(this).focus(function(){
         //if the field is in a form capture the return key event 
         $(this).closest("form").bind("keydown.block_for_smart_autocomplete", function(ev){
+          var type_ahead_field = $(options.context).prev('.smart_autocomplete_type_ahead_field');
           if(ev.keyCode == '13'){
             if(options.resultsContainer && $(options.resultsContainer).is(':visible')){
               var current_selection = options.currentSelection;
@@ -448,8 +449,8 @@
               $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
               return false;
             }
-            else if(options.typeAhead){
-              $(options.context).trigger('itemSelect', [ $(options.context).prev('.smart_autocomplete_type_ahead_field') ] );
+            else if(options.typeAhead && type_ahead_field.is(':visible') ){
+              $(options.context).trigger('itemSelect', [ type_ahead_field ] );
               return false;
             }
           }
