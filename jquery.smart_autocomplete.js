@@ -425,8 +425,17 @@
         }
 
         else {
+         var current_char_count = $(options.context).val().length;
+         //check whether the string has modified
+         if(options.originalCharCount != current_char_count)
+           return;
+
          //check minimum number of characters are typed
-         if($(options.context).val().length >= options.minCharLimit){
+         if(current_char_count >= options.minCharLimit){
+
+          //set number of current chars in field 
+          options.originalCharCount = current_char_count;
+
           $(options.context).trigger('keyIn', [$(this).val()]); 
          }
          else{
