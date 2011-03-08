@@ -232,6 +232,7 @@
             overflow: 'hidden',
             background: 'none repeat scroll 0 0 #FFFFFF',
             borderColor: 'transparent',
+            width: $(context).width(),
             color: 'silver'
           });
 
