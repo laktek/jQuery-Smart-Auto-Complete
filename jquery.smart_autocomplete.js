@@ -111,6 +111,7 @@
                             clearResults: function(){
                               //remove type ahead field
                               $(this.context).prev(".smart_autocomplete_type_ahead_field").remove();
+                              $(this.context).css({ background: '#FFF' });
 
                               //clear results div
                               $(this.resultsContainer).html("");
@@ -231,6 +232,7 @@
             overflow: 'hidden',
             background: 'none repeat scroll 0 0 #FFFFFF',
             borderColor: 'transparent',
+            width: $(context).width(),
             color: 'silver'
           });
 
@@ -290,6 +292,9 @@
 
         //set item selected property
         options.setItemSelected(true);
+
+        //set number of current chars in field 
+        options.originalCharCount = $(context).val().length;
         
         //trigger lost focus
         $(context).trigger('lostFocus');
@@ -409,21 +414,27 @@
 
         //right arrow & enter key
         else if(ev.keyCode == '39' || ev.keyCode == '13'){
-          if(options.resultsContainer){
+          var type_ahead_field = $(options.context).prev('.smart_autocomplete_type_ahead_field');
+          if(options.resultsContainer && $(options.resultsContainer).is(':visible')){
             var current_selection = options.currentSelection;
             var result_suggestions = $(options.resultsContainer).children();
 
             $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
           }
-          else
-            $(options.context).trigger('itemSelect', [ $(options.context).prev('.smart_autocomplete_type_ahead_field') ] );
+          else if(options.typeAhead && type_ahead_field.is(':visible'))
+            $(options.context).trigger('itemSelect', [ type_ahead_field ] );
 
           return false;
         }
 
         else {
+         var current_char_count = $(options.context).val().length;
+         //check whether the string has modified
+         if(options.originalCharCount == current_char_count)
+           return;
+
          //check minimum number of characters are typed
-         if($(options.context).val().length >= options.minCharLimit){
+         if(current_char_count >= options.minCharLimit){
           $(options.context).trigger('keyIn', [$(this).val()]); 
          }
          else{
@@ -437,9 +448,22 @@
       });
 
       $(this).focus(function(){
-        //disable form submission while auto suggest field has focus 
-        $(this).closest("form").bind("submit.block_for_autocomplete", function(ev){
-           return false; 
+        //if the field is in a form capture the return key event 
+        $(this).closest("form").bind("keydown.block_for_smart_autocomplete", function(ev){
+          var type_ahead_field = $(options.context).prev('.smart_autocomplete_type_ahead_field');
+          if(ev.keyCode == '13'){
+            if(options.resultsContainer && $(options.resultsContainer).is(':visible')){
+              var current_selection = options.currentSelection;
+              var result_suggestions = $(options.resultsContainer).children();
+
+              $(options.context).trigger('itemSelect', [ result_suggestions[current_selection] ] );
+              return false;
+            }
+            else if(options.typeAhead && type_ahead_field.is(':visible') ){
+              $(options.context).trigger('itemSelect', [ type_ahead_field ] );
+              return false;
+            }
+          }
         });
 
         if(options.forceSelect){
@@ -448,13 +472,12 @@
       });
 
       //check for loosing focus on smart complete field and results container
-      //$(this).blur(function(ev){
       $(document).bind("focusin click", function(ev){
         if($(options.resultsContainer).is(':visible')){
           var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
-          if(ev.target == options.resultsContainer[0] || ev.target == options.context[0] || elemIsParent) return
-           
-          $(options.context).closest("form").unbind("submit.block_for_autocomplete");
+          if(ev.target == options.resultsContainer[0] || ev.target == options.context || elemIsParent) return
+
+          $(options.context).closest("form").unbind("keydown.block_for_smart_autocomplete");
           $(options.context).trigger('lostFocus');
         }
       });

@@ -23,9 +23,7 @@
         //example 4
         $("#type_ahead_only_autocomplete_field").smartAutoComplete({source: ['Apple', 'Banana', 'Orange', 'Mango'], typeAhead: true, maxResults: 1, resultsContainer: false });
 
-        //example 5
-        $("#jazz_musicians_field").smartAutoComplete({
-        source: [
+        var jazz_musicians = [
           "Scott Joplin",
           "Charles Bolden",
           "Duke Ellington",
@@ -49,7 +47,11 @@
           "Billie Holiday",
           "Ella Fitzgerald",
           "Sarah Vaughan"
-        ],
+        ];
+
+        //example 5
+        $("#jazz_musicians_field").smartAutoComplete({
+        source: jazz_musicians,
 
         filter: function(term, source){
             var filtered_and_sorted_list =  $.map(source, function(item){
@@ -97,6 +99,26 @@
 
         });
 
+        //example 7
+        $("#jazz_musicians_with_highlight_field").smartAutoComplete({
+          source: jazz_musicians,
+
+          filter: function(term, source){
+              var filtered_and_sorted_list =  $.map(source, function(item){
+                                                 var score = item.toLowerCase().score(term.toLowerCase());
+
+                                                 if(score > 0)
+                                                   return { 'name': item, 'value': score }
+                                              }).sort(function(a, b){ return b.value - a.value });
+
+              return $.map(filtered_and_sorted_list, function(item){
+                return item.name;
+              });
+          },
+
+          resultFormatter: function(r){ return ("<li>" + r.replace(new RegExp($(this.context).val(),"gi"), "<strong>$&</strong>") + "</li>"); }
+
+        });
 
     });
   </script>
@@ -151,7 +173,7 @@
         <p>Please check the source code of this page to learn how these examples were implemented</p>
 
         <div class="form-container">
-          <form>
+          <form action"/" method="post">
             <fieldset id="example_1">
               <legend>Example 1</legend>
 
@@ -221,6 +243,19 @@
                 <p class='note'>You can enter mulitple values seperated by comma</p>
               </div>
             </fieldset>
+
+            <fieldset id="example_7">
+              <legend>Example 7</legend>
+
+              <p>Clone of Example 5 which highlights matching portion in results (note the use of <em>resultFormatter</em> option).</p>
+
+              <div>
+                <label for="jazz_musicians_with_highlight_field">Favorite Jazz Musician</label>
+                <input type="text" autocomplete="off" id="jazz_musicians_with_highlight_field"/>
+              </div>
+            </fieldset>
+
+
 
           </form>
         </div>
