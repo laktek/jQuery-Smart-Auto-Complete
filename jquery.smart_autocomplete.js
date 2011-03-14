@@ -472,7 +472,6 @@
       });
 
       //check for loosing focus on smart complete field and results container
-      //$(this).blur(function(ev){
       $(document).bind("focusin click", function(ev){
         if($(options.resultsContainer).is(':visible')){
           var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
