@@ -402,7 +402,7 @@
             if(current_selection >= 0)
               $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
 
-            if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
+            if(isNaN(current_selection) || null == current_selection || (++current_selection >= result_suggestions.length) )
               current_selection = 0;
 
             options['currentSelection'] = current_selection;
