@@ -110,9 +110,10 @@
 
                             clearResults: function(){
                               //remove type ahead field
-                              $(this.context).prev(".smart_autocomplete_type_ahead_field").remove();
-                              $(this.context).css({ background: '#FFF' });
-
+                              var type_ahead_field = $(this.context).prev(".smart_autocomplete_type_ahead_field");
+                              $(this.context).css({ background: type_ahead_field.css("background") });
+                              type_ahead_field.remove();
+                              
                               //clear results div
                               $(this.resultsContainer).html("");
                             },
@@ -230,7 +231,7 @@
             position: "absolute",
             zIndex: 1,
             overflow: 'hidden',
-            background: 'none repeat scroll 0 0 #FFFFFF',
+            background: $(context).css("background"),
             borderColor: 'transparent',
             width: $(context).width(),
             color: 'silver'
