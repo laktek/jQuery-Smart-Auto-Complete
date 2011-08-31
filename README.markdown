@@ -65,10 +65,9 @@ This is similar to behaviour in Google Instant Search's query field (Check Examp
 
 ### source  (string/array)
 
-**required**
-
 Defines the list of items to be filtered. You can give a hardcoded array or a string containing a URL, which will return a JSON array, as the source.
-Note: Your can omit this option or provide a different object, if you are defining your own filter method 
+
+**Note**: Your can omit this option or provide a different object, if you are defining your own filter method.
 
 ### filter (function)
 
