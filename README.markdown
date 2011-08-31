@@ -118,7 +118,7 @@ Fires when results are ready (returned from the filter function)
 
 Fires after results are added to the results container 
 
-### noMatch
+### noResults
 
 Fires if filter function returned no results
 
