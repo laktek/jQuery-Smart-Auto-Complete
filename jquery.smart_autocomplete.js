@@ -110,9 +110,10 @@
 
                             clearResults: function(){
                               //remove type ahead field
-                              $(this.context).prev(".smart_autocomplete_type_ahead_field").remove();
-                              $(this.context).css({ background: '#FFF' });
-
+                              var type_ahead_field = $(this.context).prev(".smart_autocomplete_type_ahead_field");
+                              $(this.context).css({ background: type_ahead_field.css("background") });
+                              type_ahead_field.remove();
+                              
                               //clear results div
                               $(this.resultsContainer).html("");
                             },
@@ -230,7 +231,7 @@
             position: "absolute",
             zIndex: 1,
             overflow: 'hidden',
-            background: 'none repeat scroll 0 0 #FFFFFF',
+            background: $(context).css("background"),
             borderColor: 'transparent',
             width: $(context).width(),
             color: 'silver'
@@ -402,7 +403,7 @@
             if(current_selection >= 0)
               $(options.context).trigger('itemUnfocus', result_suggestions[current_selection] );
 
-            if(isNaN(current_selection) || (++current_selection >= result_suggestions.length) )
+            if(isNaN(current_selection) || null == current_selection || (++current_selection >= result_suggestions.length) )
               current_selection = 0;
 
             options['currentSelection'] = current_selection;
@@ -474,8 +475,8 @@
       //check for loosing focus on smart complete field and results container
       $(document).bind("focusin click", function(ev){
         if($(options.resultsContainer).is(':visible')){
-          var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
-          if(ev.target == options.resultsContainer[0] || ev.target == options.context || elemIsParent) return
+          var elemIsParent  = $(options.resultsContainer, ev.target).size();
+          if(ev.target == options.resultsContainer || ev.target == options.context || elemIsParent == 1) return;
 
           $(options.context).closest("form").unbind("keydown.block_for_smart_autocomplete");
           $(options.context).trigger('lostFocus');
