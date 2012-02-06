@@ -30,6 +30,12 @@ To activate the plugin call `smartAutoComplete` method with options on target jQ
 
 Sets the minimum characters user have to type before invoking the autocomplete 
 
+### maxCharLimit (integer)
+
+**default**: unlimited 
+
+Sets the maximum character range auto-complete will offer suggestions. Useful in free-form fields. 
+
 ### maxResults (integer)
 
 **default**: null (means unlimited)
