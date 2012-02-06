@@ -14,6 +14,7 @@
 
   Options:
   minCharLimit: (integer) minimum characters user have to type before invoking the autocomplete (default: 1)
+  maxCharLimit: (integer) maximum characters user can type while invoking the autocomplete (default: null (unlimited))
   maxResults: (integer) maximum number of results to return (default: null (unlimited))
   delay: (integer) delay before autocomplete starts (default: 0)
   disabled: (boolean) whether autocomplete disabled on the field (default: false)
@@ -67,15 +68,14 @@
 
     var default_options = {
                             minCharLimit: 1, 
+                            maxCharLimit: null, 
                             maxResults: null,
                             delay: 0,
                             disabled: false,
                             forceSelect: false,
                             typeAhead: false,
                             resultElement: "li",
-
                             resultFormatter: function(r){ return ("<li>" + r + "</li>"); },
-
                             filter: function(term, source){    
                               var context = this;
                               var options = $(context).data('smart-autocomplete');
@@ -125,6 +125,12 @@
 
                             setItemSelected: function(val){
                               this.itemSelected = val;
+                            },
+
+                            autocompleteFocused: false,
+
+                            setAutocompleteFocused: function(val){
+                              this.autocompleteFocused = val;
                             }
 
     };
@@ -138,15 +144,20 @@
         var options = $(context).data("smart-autocomplete");
         var source = options.source || null;
         var filter = options.filter;
+        var maxChars = (options.maxCharLimit > 0 ?  options.maxCharLimit : Number.POSITIVE_INFINITY)
 
         //event specific data
         var query = ev.smartAutocompleteData.query;
 
-        if(options.disabled)
+        if(options.disabled || (query.length > maxChars)){
           return false;
+        }
 
         //set item selected property
         options.setItemSelected(false);
+
+        //set autocomplete focused
+        options.setAutocompleteFocused(true);
 
         //call the filter function with delay
         setTimeout(function(){
@@ -188,7 +199,7 @@
 
         //call the results formatter function
         var formatted_results = $.map(results, function(result){
-          return options.resultFormatter.apply(options, [result]);
+        return options.resultFormatter.apply(options, [result]);
         });
 
         var formatted_results_html = formatted_results.join("");
@@ -337,6 +348,9 @@
         if(options.forceSelect && !options.itemSelected)
           $(options.context).val("");
 
+        //unset autocomplete focused
+        options.setAutocompleteFocused(false);
+
         //clear results
         options.clearResults(); 
 
@@ -396,7 +410,7 @@
         //down arrow
         else if(ev.keyCode == '40'){
 
-          if(options.resultsContainer){
+          if(options.resultsContainer && options.resultsContainer.is(':visible')){
             var current_selection = options.currentSelection;
             var result_suggestions = $(options.resultsContainer).children();
 
@@ -409,6 +423,10 @@
             options['currentSelection'] = current_selection;
 
             $(options.context).trigger('itemFocus', [ result_suggestions[current_selection] ] );
+          }
+          //trigger keyIn event on down key
+          else {
+            $(options.context).trigger('keyIn', [$(this).val()]); 
           }
           
         }
@@ -434,12 +452,12 @@
          if(options.originalCharCount == current_char_count)
            return;
 
-         //check minimum number of characters are typed
+         //check minimum and maximum number of characters are typed
          if(current_char_count >= options.minCharLimit){
           $(options.context).trigger('keyIn', [$(this).val()]); 
          }
          else{
-            if($(options.resultsContainer).is(':visible')){ 
+            if(options.autocompleteFocused){ 
               options.currentSelection = null;
               $(options.context).trigger('lostFocus');
             }
@@ -473,10 +491,11 @@
       });
 
       //check for loosing focus on smart complete field and results container
+      //$(this).blur(function(ev){
       $(document).bind("focusin click", function(ev){
-        if($(options.resultsContainer).is(':visible')){
-          var elemIsParent  = $(options.resultsContainer, ev.target).size();
-          if(ev.target == options.resultsContainer || ev.target == options.context || elemIsParent == 1) return;
+        if(options.autocompleteFocused){ 
+          var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
+          if(ev.target == options.resultsContainer[0] || ev.target == options.context || elemIsParent) return
 
           $(options.context).closest("form").unbind("keydown.block_for_smart_autocomplete");
           $(options.context).trigger('lostFocus');
