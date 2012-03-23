@@ -504,10 +504,14 @@
 
       //bind events to results container
       $(options.resultsContainer).delegate(options.resultElement, 'mouseenter.smart_autocomplete', function(){
-        var current_selection = options.currentSelection || 0;
+        var old_selection = options.currentSelection || 0;
         var result_suggestions = $(options.resultsContainer).children();
 
         options['currentSelection'] = $(this).prevAll().length;
+        
+        if (old_selection != options.currentSelection) {
+          $(options.context).trigger('itemUnfocus', result_suggestions[old_selection]);
+        }
 
         $(options.context).trigger('itemFocus', [this] );
           
