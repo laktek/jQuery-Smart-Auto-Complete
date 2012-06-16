@@ -521,7 +521,7 @@
         $(options.context).trigger('itemUnfocus', [this] );
       });
 
-      $(options.resultsContainer).delegate(options.resultElement, 'click.smart_autocomplete', function(){
+      $(options.resultsContainer).delegate(options.resultElement, 'mousedown.smart_autocomplete', function(){
         $(options.context).trigger('itemSelect', [this]);
         return false
       });
