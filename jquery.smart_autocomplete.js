@@ -150,6 +150,7 @@
         var query = ev.smartAutocompleteData.query;
 
         if(options.disabled || (query.length > maxChars)){
+          $(context).smartAutoComplete().clearResults();
           return false;
         }
 
