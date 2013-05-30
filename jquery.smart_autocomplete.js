@@ -97,7 +97,7 @@
                                     url: source,
                                     data: {"term": term},
                                     dataType: "json"
-                                  }).success( function(data){
+                                  }).done( function(data){
                                     dfd.resolve( default_filter_matcher(term, data, context) );          
                                   }); 
                                 }).promise();
