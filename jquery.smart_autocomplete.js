@@ -449,7 +449,7 @@
           return false;
         }
 
-        else {
+        else if(ev.keyCode !== 255) {
          var current_char_count = $(options.context).val().length;
          //check whether the string has modified
          if(options.originalCharCount == current_char_count)
