@@ -385,7 +385,7 @@
       $(this).data("smart-autocomplete", options);
 
       // bind user events
-      $(this).on("keydown", function(ev){
+      $(this).on("keyup", function(ev){
         //get the options
         var options = $(this).data("smart-autocomplete");
 
