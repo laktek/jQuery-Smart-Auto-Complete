@@ -162,7 +162,7 @@
 
         //call the filter function with delay
         setTimeout(function(){
-          $.when( filter.apply(options, [query, options.source]) ).done(function( results ){
+          $.when( filter.apply(options, [query, options.source, context]) ).done(function( results ){
             //do the trimming
             var trimmed_results = (options.maxResults > 0 ? results.splice(0, options.maxResults) : results);
 

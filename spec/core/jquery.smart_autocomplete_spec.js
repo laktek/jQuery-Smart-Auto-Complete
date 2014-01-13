@@ -163,7 +163,7 @@ describe('Smart AutoComplete', function () {
 
       it("if custom filter function is defined, call it with query and source", function(){
         var output_buffer;
-        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test", setAutocompleteFocused: function(){} });
+        $("#autoCompleteField").smartAutoComplete({filter: function(q, s, t){ output_buffer = "received " + q + " & " + s; return [] }, source: "test", setAutocompleteFocused: function(){} });
         $("#autoCompleteField").bind('resultsReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
@@ -184,7 +184,7 @@ describe('Smart AutoComplete', function () {
 
         waits(0); //this is deprecated
         runs(function(){
-          expect(mock_autocomplete_obj.filter).toHaveBeenCalledWith('t', 'test');
+          expect(mock_autocomplete_obj.filter).toHaveBeenCalledWith('t', 'test', $('#autoCompleteField')[0]);
         });
       });
 
