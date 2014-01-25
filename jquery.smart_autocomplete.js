@@ -1,9 +1,9 @@
 /**
- * Smart Auto Complete plugin 
- * 
+ * Smart Auto Complete plugin
+ *
  * Copyright (c) 2011 Lakshan Perera (laktek.com)
  * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)  licenses.
- * 
+ *
 */
 
 /*
@@ -22,18 +22,18 @@
                Better to enable this option, if you want autocomplete field to behave similar to a HTML select field. (Check Example 2 in the demo)
                (default: false)
   typeAhead: (boolean) If set to true, it will offer the best matching result in grey within the field; that can be auto-completed by pressing the right arrow-key or enter.
-             This is similar to behaviour in Google Instant Search's query field (Check Example 3 in the demo) 
+             This is similar to behaviour in Google Instant Search's query field (Check Example 3 in the demo)
              (default: false)
   source:  (string/array) you can supply an array with items or a string containing a URL to fetch items for the source
-           this is optional if you prefer to have your own filter method 
+           this is optional if you prefer to have your own filter method
   filter: (function) define a custom function that would return matching items to the entered text (this will override the default filtering algorithm)
           should return an array or a Deferred object (ajax call)
-          parameters available: term, source 
+          parameters available: term, source
   resultFormatter: (function) the function you supply here will be called to format the output of an individual result.
                    should return a string
-                   parameters available: result 
+                   parameters available: result
   resultsContainer: (selector) to which element(s) the result should be appended.
-  resultElement: (selector) references to the result elements collection (e.g. li, div.result) 
+  resultElement: (selector) references to the result elements collection (e.g. li, div.result)
 
   Events:
   keyIn: fires when user types into the field (parameters: query)
@@ -49,10 +49,10 @@
 */
 
 (function($){
-  $.fn.smartAutoComplete = function(){    
+  $.fn.smartAutoComplete = function(){
 
     if(arguments.length < 1){
-      // get the smart autocomplete object of the first element and return 
+      // get the smart autocomplete object of the first element and return
       var first_element = this[0];
       return $(first_element).data("smart-autocomplete")
     }
@@ -67,8 +67,8 @@
                                  }
 
     var default_options = {
-                            minCharLimit: 1, 
-                            maxCharLimit: null, 
+                            minCharLimit: 1,
+                            maxCharLimit: null,
                             maxResults: null,
                             delay: 0,
                             disabled: false,
@@ -76,32 +76,32 @@
                             typeAhead: false,
                             resultElement: "li",
                             resultFormatter: function(r){ return ("<li>" + r + "</li>"); },
-                            filter: function(term, source){    
+                            filter: function(term, source){
                               var context = this;
                               var options = $(context).data("smart-autocomplete");
-                              
+
 
                               //when source is an array
                               if($.type(source) === "array") {
                                 // directly map
                                 var results = default_filter_matcher(term, source, context);
-                                return results; 
+                                return results;
                               }
                               //when source is a string
                               else if($.type(source) === "string"){
                                 // treat the string as a URL endpoint
                                 // pass the query as 'term'
-                                
-                                return $.Deferred(function(dfd){ 
+
+                                return $.Deferred(function(dfd){
                                   $.ajax({
                                     url: source,
                                     data: {"term": term},
                                     dataType: "json"
                                   }).done( function(data){
-                                    dfd.resolve( default_filter_matcher(term, data, context) );          
-                                  }); 
+                                    dfd.resolve( default_filter_matcher(term, data, context) );
+                                  });
                                 }).promise();
-                                
+
                               }
 
                             },
@@ -113,7 +113,7 @@
                               var type_ahead_field = $(this.context).prev(".smart_autocomplete_type_ahead_field");
                               $(this.context).css({ background: type_ahead_field.css("background") });
                               type_ahead_field.remove();
-                              
+
                               //clear results div
                               $(this.resultsContainer).html("");
                             },
@@ -137,7 +137,7 @@
 
     //define the default events
     $.event.special.keyIn = {
-      setup: function(){ return false; }, 
+      setup: function(){ return false; },
 
       _default: function(ev){
         var context = ev.target;
@@ -186,7 +186,7 @@
         if(options.disabled)
           return false;
 
-        //clear all previous results 
+        //clear all previous results
         $(context).smartAutoComplete().clearResults();
 
         //save the raw results
@@ -211,24 +211,24 @@
 
         //trigger results ready event
         $(context).trigger("showResults", [results]);
-      }             
+      }
     };
 
     $.event.special.showResults = {
       setup: function(){ return false },
 
-      _default: function(ev){    
+      _default: function(ev){
         var context = ev.target;
         var options = $(context).data("smart-autocomplete");
         var results_container = $(options.resultsContainer);
 
         //event specific data
-        var raw_results = ev.smartAutocompleteData.results; 
+        var raw_results = ev.smartAutocompleteData.results;
 
         //type ahead
         if(options.typeAhead && (raw_results[0].substr(0, $(context).val().length) == $(context).val()) ){
-          var suggestion = raw_results[0]; //options.typeAheadExtractor($(context).val(), raw_results[0]); 
-          
+          var suggestion = raw_results[0]; //options.typeAheadExtractor($(context).val(), raw_results[0]);
+
           //add new typeAhead field
           $(context).before("<input class='smart_autocomplete_type_ahead_field' type='text' autocomplete='off' disabled='disabled' value='" + suggestion + "'/>");
 
@@ -255,17 +255,17 @@
             $(context).trigger("itemFocus", results_container.children()[options.currentSelection]);
         }
 
-        //show the results container after aligning it with the field 
+        //show the results container after aligning it with the field
         if(results_container){
           if(options.alignResultsContainer){
-            results_container.css({ 
+            results_container.css({
                   position: "absolute",
-                  top: function(){ return $(context).offset().top + $(context).height(); }, 
-                  left: function(){ return $(context).offset().left; }, 
-                  width: function(){ return $(context).width(); }, 
+                  top: function(){ return $(context).offset().top + $(context).height(); },
+                  left: function(){ return $(context).offset().left; },
+                  width: function(){ return $(context).width(); },
                   zIndex: 1000
             })
-          }  
+          }
           results_container.show();
         }
 
@@ -275,23 +275,23 @@
     $.event.special.noResults = {
       setup: function(){ return false },
 
-      _default: function(ev){    
+      _default: function(ev){
         var context = ev.target;
         var options = $(context).data("smart-autocomplete");
         var result_container = $(options.resultsContainer);
 
         if(result_container){
          //clear previous results
-         options.clearResults(); 
+         options.clearResults();
         }
 
       }
     };
 
-    $.event.special.itemSelect = { 
+    $.event.special.itemSelect = {
       setup: function(){ return false },
 
-      _default: function(ev){    
+      _default: function(ev){
         var context = ev.target;
         var options = $(context).data("smart-autocomplete");
 
@@ -301,14 +301,14 @@
         //get the text from selected item
         var selected_value = $(selected_item).text() || $(selected_item).val();
         //set it as the value of the autocomplete field
-        $(context).val(selected_value); 
+        $(context).val(selected_value);
 
         //set item selected property
         options.setItemSelected(true);
 
-        //set number of current chars in field 
+        //set number of current chars in field
         options.originalCharCount = $(context).val().length;
-        
+
         //trigger lost focus
         $(context).trigger('lostFocus');
       }
@@ -317,7 +317,7 @@
     $.event.special.itemFocus = {
       setup: function(){ return false },
 
-      _default: function(ev){    
+      _default: function(ev){
 
         //event specific data
         var item = ev.smartAutocompleteData.item;
@@ -326,10 +326,10 @@
       }
     };
 
-    $.event.special.itemUnfocus = { 
+    $.event.special.itemUnfocus = {
       setup: function(){ return false },
 
-      _default: function(ev){    
+      _default: function(ev){
 
         //event specific data
         var item = ev.smartAutocompleteData.item;
@@ -341,11 +341,11 @@
     $.event.special.lostFocus = {
       setup: function(){ return false },
 
-      _default: function(ev){    
+      _default: function(ev){
         var context = ev.target;
         var options = $(context).data("smart-autocomplete");
 
-        //if force select is selected and no item is selected, clear currently entered text 
+        //if force select is selected and no item is selected, clear currently entered text
         if(options.forceSelect && !options.itemSelected)
           $(options.context).val("");
 
@@ -353,7 +353,7 @@
         options.setAutocompleteFocused(false);
 
         //clear results
-        options.clearResults(); 
+        options.clearResults();
 
         //hide the results container
         if(options.resultsContainer)
@@ -366,7 +366,7 @@
 
     var passed_options = arguments[0];
 
-    return this.each(function(i) { 
+    return this.each(function(i) {
       //set the options
       var options = $.extend(default_options, $(this).data("smart-autocomplete"), passed_options);
       //set the context
@@ -385,7 +385,7 @@
       $(this).data("smart-autocomplete", options);
 
       // bind user events
-      $(this).on("keydown", function(ev){
+      $(this).on("keyup", function(ev){
         //get the options
         var options = $(this).data("smart-autocomplete");
 
@@ -429,9 +429,9 @@
           }
           //trigger keyIn event on down key
           else {
-            $(options.context).trigger("keyIn", [$(this).val()]); 
+            $(options.context).trigger("keyIn", [$(this).val()]);
           }
-          
+
         }
 
         //right arrow & enter key
@@ -457,10 +457,10 @@
 
          //check minimum and maximum number of characters are typed
          if(current_char_count >= options.minCharLimit){
-          $(options.context).trigger("keyIn", [$(this).val()]); 
+          $(options.context).trigger("keyIn", [$(this).val()]);
          }
          else{
-            if(options.autocompleteFocused){ 
+            if(options.autocompleteFocused){
               options.currentSelection = null;
               $(options.context).trigger("lostFocus");
             }
@@ -470,7 +470,7 @@
       });
 
       $(this).focus(function(){
-        //if the field is in a form capture the return key event 
+        //if the field is in a form capture the return key event
         $(this).closest("form").bind("keydown.block_for_smart_autocomplete", function(ev){
           var type_ahead_field = $(options.context).prev(".smart_autocomplete_type_ahead_field");
           if(ev.keyCode === 13){
@@ -489,14 +489,14 @@
         });
 
         if(options.forceSelect){
-          $(this).select(); 
+          $(this).select();
         }
       });
 
       //check for loosing focus on smart complete field and results container
       //$(this).blur(function(ev){
       $(document).bind("focusin click", function(ev){
-        if(options.autocompleteFocused){ 
+        if(options.autocompleteFocused){
           var elemIsParent = $.contains(options.resultsContainer[0], ev.target);
           if(ev.target == options.resultsContainer[0] || ev.target == options.context || elemIsParent) return
 
@@ -511,13 +511,13 @@
         var result_suggestions = $(options.resultsContainer).children();
 
         options["currentSelection"] = $(this).prevAll().length;
-        
+
         if (old_selection != options.currentSelection) {
           $(options.context).trigger("itemUnfocus", result_suggestions[old_selection]);
         }
 
         $(options.context).trigger("itemFocus", [this] );
-          
+
       });
 
       $(options.resultsContainer).delegate(options.resultElement, "mouseleave.smart_autocomplete", function(){
@@ -532,7 +532,7 @@
       //bind plugin specific events
       $(this).bind({
         keyIn: function(ev, query){ ev.smartAutocompleteData  = {"query": query }; },
-        resultsReady: function(ev, results){ ev.smartAutocompleteData  = {"results": results }; }, 
+        resultsReady: function(ev, results){ ev.smartAutocompleteData  = {"results": results }; },
         showResults: function(ev, results){ ev.smartAutocompleteData = {"results": results } },
         noResults: function(){},
         lostFocus: function(){},
@@ -541,6 +541,5 @@
         itemUnfocus: function(ev, item){ ev.smartAutocompleteData = {"item": item }; }
       });
     });
-      
   }
 })(jQuery);

@@ -1,5 +1,5 @@
 describe('Smart AutoComplete', function () {
-    
+
     beforeEach(function () {
       setFixtures("<input id='autoCompleteField'/>");
     });
@@ -131,7 +131,7 @@ describe('Smart AutoComplete', function () {
       });
 
       it("performs no action if disabled", function(){
-        var mock_autocomplete_obj = {filter: function(){}, source: 'test', disabled: true};
+        var mock_autocomplete_obj = { filter: function(){}, source: 'test', disabled: true, setAutocompleteFocused: function(){}, clearResults: function(){} };
         spyOn(mock_autocomplete_obj, 'filter');
 
         $("#autoCompleteField").smartAutoComplete({});
@@ -160,10 +160,10 @@ describe('Smart AutoComplete', function () {
           expect(output_buffer).toEqual("received t & test");
         });
       });
-      
+
       it("if custom filter function is defined, call it with query and source", function(){
         var output_buffer;
-        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test"});
+        $("#autoCompleteField").smartAutoComplete({filter: function(q, s){ output_buffer = "received " + q + " & " + s; return [] }, source: "test", setAutocompleteFocused: function(){} });
         $("#autoCompleteField").bind('resultsReady', function(ev){ ev.preventDefault(); });
         $("#autoCompleteField").trigger("keyIn", "t");
 
@@ -172,9 +172,9 @@ describe('Smart AutoComplete', function () {
           expect(output_buffer).toEqual("received t & test");
         });
       });
-  
+
       it("if custom filter function is not defined, call default filter with query and source", function(){
-        var mock_autocomplete_obj = {filter: function(){}, source: 'test', clearResults: function(){}, setItemSelected: function(){} };
+        var mock_autocomplete_obj = {filter: function(){}, source: 'test', clearResults: function(){}, setItemSelected: function(){}, setAutocompleteFocused: function(){} };
         spyOn(mock_autocomplete_obj, 'filter').andReturn([]);
 
         $("#autoCompleteField").smartAutoComplete({});
@@ -201,7 +201,7 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").trigger('resultsReady', [["a", "b", "c"]]);
 
         expect($("#autoCompleteField").data("smart-autocomplete").rawResults).toEqual(["a", "b", "c"]);
- 
+
       });
 
       it("format the results using the result formatter function", function(){
@@ -251,8 +251,8 @@ describe('Smart AutoComplete', function () {
         $("#autoCompleteField").trigger('resultsReady', [[]]);
 
         expect(event_output).toEqual("no match");
-      }); 
-    
+      });
+
     });
 
     describe('no results event', function(){
@@ -398,14 +398,14 @@ describe('Smart AutoComplete', function () {
 
       it("returns the matching results when using an array as the source", function(){
         expect( $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', ['test', 'table', 'abc']) ).toEqual(['test', 'table']);
-      }); 
+      });
 
       it("initates an deferred ajax call when source is given as a string", function(){
         spyOn($, 'Deferred').andReturn({promise: function(){} });
 
         $("#autoCompleteField").smartAutoComplete().filter.call($("#autoCompleteField"), 't', 'http://localhost/autocomplete');
         expect($.Deferred).toHaveBeenCalled();
-      }); 
+      });
 
     });
 
