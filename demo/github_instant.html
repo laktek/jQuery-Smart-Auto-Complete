@@ -7,7 +7,7 @@
   <link media="screen" type="text/css" href="stylesheets/application.css" rel="stylesheet">
   <link media="screen" type="text/css" href="stylesheets/smooth_theme.css" rel="stylesheet">
 
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script type="text/javascript" src="../jquery.smart_autocomplete.js"></script>
 
   <script type="text/javascript">
@@ -16,9 +16,9 @@
           filter: function(term){
            return $.Deferred(function(dfd){ 
               $.getJSON("http://github.com/api/v2/json/repos/search/" + term + "?callback=?").success( function(data){
-                dfd.resolve( $.map(data.repositories, function(r){ return r; }) );          
-              }); 
-           }).promise(); 
+                dfd.resolve( $.map(data.repositories, function(r){ return r; }) );
+              });
+           }).promise();
           },
           resultsContainer: "div#results",
           resultFormatter: function(r){ return "<div class='result'><h3><a href='" + r.url + "'>" + r.name + "</a> (" + r.language + ")</h3><p>" + r.description + "</p><div class='details'><span>Owner: " + r.owner + "</span> | <span>Forks: " + r.forks + "</span> | <span>Watchers: " + r.watchers + "</span></div></div>" },
@@ -28,7 +28,6 @@
           keyIn: function(){
             //clear exisiting results
             $(this).smartAutoComplete().clearResults();
-            
             $("div#results").html("Loading...");
           },
 
