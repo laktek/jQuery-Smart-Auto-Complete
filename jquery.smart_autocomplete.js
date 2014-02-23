@@ -258,12 +258,14 @@
         //show the results container after aligning it with the field
         if(results_container){
           if(options.alignResultsContainer){
+            var zIndex = results_container.css("z-index");
+            zIndex = isNaN(zIndex) ? 1000 : zIndex;
             results_container.css({
                   position: "absolute",
-                  top: function(){ return $(context).offset().top + $(context).height(); },
+                  top: function(){ return $(context).offset().top + $(context).outerHeight(); },
                   left: function(){ return $(context).offset().left; },
-                  width: function(){ return $(context).width(); },
-                  zIndex: 1000
+                  width: function(){ return $(context).outerWidth(); },
+                  zIndex: isNaN(zIndex) ? 1000 : zIndex
             })
           }
           results_container.show();
